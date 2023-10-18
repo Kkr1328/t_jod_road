@@ -26,8 +26,8 @@ export default function Home() {
 								onClick={() => console.log('hih')}
 							/>
 							<ButtonCV2X
-								icon={BUTTON_LABEL.CANCLE}
-								label={BUTTON_LABEL.CANCLE}
+								icon={BUTTON_LABEL.CANCEL}
+								label={BUTTON_LABEL.CANCEL}
 								color="error"
 								variant="outlined"
 								onClick={() => console.log('yoy')}
