@@ -5,7 +5,7 @@ import { GoogleMap, useLoadScript, Marker } from '@react-google-maps/api'
 import PageTitle from "@/components/common/PageTitle";
 import { NAVBAR_LABEL } from "@/constants/LABEL";
 import Card from '@mui/material/Card';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Modal, Box } from '@mui/material';
 import ButtonCV2X from '@/components/common/ButtonCV2X';
 import { MockedDriveIn, SpaceParking } from '@/mock/DRIVE_IN';
@@ -19,6 +19,12 @@ export default function DriveIN() {
     const [selectedPlace, setSelectedPlace] = useState<SpaceParking>()
     const [showModal, setModal] = useState<boolean>(false)
 
+    useEffect(() => { 
+        if (showModal) {
+            console.log(selectedPlace?.id)
+        }
+    },[showModal]);
+    
     const openModal = (place: SpaceParking) => {
         setSelectedPlace(place)
         setModal(true)
@@ -46,8 +52,10 @@ export default function DriveIN() {
                     {MockedDriveIn.map((item) =>
                         <Marker
                             icon={{ url: '/parking_pin.svg', scaledSize: new google.maps.Size(64, 64) }}
+                            label={{text: item.available.toString(), color: 'white', className: 'translate-y-[-5px]'}}
                             position={item.position}
                             onClick={() => openModal(item)}
+                            key={item.id}
                         />
                     )}
                 </GoogleMap>
