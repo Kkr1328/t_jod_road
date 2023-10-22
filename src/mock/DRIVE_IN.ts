@@ -27,3 +27,22 @@ export const MockedDriveIn: SpaceParking[] = [
         position: { lat: 13.728329190226818, lng: 100.52718982270956 }
     },
 ]
+
+export interface PenaltyStatus {
+    status: 'NORMAL' | 'PENALTY',
+    unBannedDate: string | null,
+    leftQuota: number
+}
+
+export const MockedPenalty: PenaltyStatus[] = [
+    {
+        status: 'NORMAL',
+        unBannedDate: null,
+        leftQuota: 3
+    },
+    {
+        status: 'PENALTY',
+        unBannedDate: new Date("2023-12-15").toDateString(),
+        leftQuota: 0
+    }
+]

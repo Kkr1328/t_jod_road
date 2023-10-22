@@ -8,7 +8,7 @@ import Card from '@mui/material/Card';
 import { useEffect, useState } from 'react';
 import { Modal, Box } from '@mui/material';
 import ButtonCV2X from '@/components/common/ButtonCV2X';
-import { MockedDriveIn, SpaceParking } from '@/mock/DRIVE_IN';
+import { MockedDriveIn, MockedPenalty, SpaceParking, PenaltyStatus } from '@/mock/DRIVE_IN';
 
 const center = {
     lat: 13.738329190226818,
@@ -17,12 +17,17 @@ const center = {
 
 export default function DriveIN() {
     const [selectedPlace, setSelectedPlace] = useState<SpaceParking>()
+    const [penaltyStatus, setPenaltyStatus] = useState<PenaltyStatus>()
     const [showReserveModal, setShowReserveModal] = useState<boolean>(false)
     const [showResultModal, setShowResultModal] = useState<boolean>(false)
 
     useEffect(() => {
+        //@here fetch penalty of user
+        setPenaltyStatus(MockedPenalty[1])
+    })
+
+    useEffect(() => {
         if (showReserveModal) {
-            console.log(selectedPlace?.id)
             //@here Fetch detail by id
         }
     }, [showReserveModal]);
@@ -46,9 +51,10 @@ export default function DriveIN() {
 
     if (!isLoaded) return 'Loading'
     return (
-        <div className='h-[70dvh]'>
+        <div className='h-[80dvh] flex flex-col gap-12 text-black'>
             <PageTitle title={NAVBAR_LABEL.CUSTOMERS_RESERVATION} />
-            <Card className='flex w-full h-full my-32 rounded-lg px-32 py-24'>
+            <Penalty props={penaltyStatus} />
+            <Card className='flex w-full h-full rounded-lg px-32 py-24'>
                 <GoogleMap
                     options={{ disableDefaultUI: true }}
                     zoom={16}
@@ -93,4 +99,21 @@ export default function DriveIN() {
             </Modal>
         </div>
     )
+}
+
+type Props = {
+    props: PenaltyStatus | undefined
+}
+
+function Penalty({ props }: Props) {
+    if (!props) return <>Loading Penalty</>
+    if (props.status === 'NORMAL') {
+        if (props.leftQuota >= 5) {
+            return <span>You are TCP (Reliable)</span>
+        } else {
+            return <span>Left quota before get penalty: {props.leftQuota}</span>
+        }
+    } else {
+        return <span>Before <span className='font-bold'>{props.unBannedDate}</span>, you must deposit to use system</span>
+    }
 }
