@@ -17,21 +17,27 @@ const center = {
 
 export default function DriveIN() {
     const [selectedPlace, setSelectedPlace] = useState<SpaceParking>()
-    const [showModal, setModal] = useState<boolean>(false)
+    const [showReserveModal, setShowReserveModal] = useState<boolean>(false)
+    const [showResultModal, setShowResultModal] = useState<boolean>(false)
 
-    useEffect(() => { 
-        if (showModal) {
+    useEffect(() => {
+        if (showReserveModal) {
             console.log(selectedPlace?.id)
+            //@here Fetch detail by id
         }
-    },[showModal]);
-    
+    }, [showReserveModal]);
+
     const openModal = (place: SpaceParking) => {
         setSelectedPlace(place)
-        setModal(true)
+        setShowReserveModal(true)
     }
-    
-    const reservePark = (id: string) => {
 
+    const reservePark = (id: string) => {
+        //@here Post reserve park by id
+
+
+        setShowReserveModal(false)
+        setShowResultModal(true)
     }
 
     const { isLoaded } = useLoadScript({
@@ -52,7 +58,7 @@ export default function DriveIN() {
                     {MockedDriveIn.map((item) =>
                         <Marker
                             icon={{ url: '/parking_pin.svg', scaledSize: new google.maps.Size(64, 64) }}
-                            label={{text: item.available.toString(), color: 'white', className: 'translate-y-[-5px]'}}
+                            label={{ text: item.available.toString(), color: 'white', fontWeight: 'bold', className: 'translate-y-[-5px]' }}
                             position={item.position}
                             onClick={() => openModal(item)}
                             key={item.id}
@@ -61,17 +67,28 @@ export default function DriveIN() {
                 </GoogleMap>
             </Card>
 
+            {selectedPlace &&
+                <Modal
+                    open={showReserveModal}
+                    onClose={() => setShowReserveModal(false)}
+                    aria-labelledby="modal-modal-title"
+                    aria-describedby="modal-modal-description"
+                >
+                    <Box className='flex flex-col gap-16 justify-center absolute top-1/2 left-1/2 w-[400px] translate-x-[-50%] translate-y-[-50%] border-solid bg-light_background_grey p-48 text-black rounded-lg'>
+                        <h1 className='text-center'>Confirm: {selectedPlace.id}</h1>
+                        <ButtonCV2X label='Reserve' onClick={() => reservePark(selectedPlace.id)} />
+                        <ButtonCV2X label='Cancel' onClick={() => setShowReserveModal(false)} color='secondary' />
+                    </Box>
+                </Modal>
+            }
+
             <Modal
-                open={showModal}
-                onClose={() => setModal(false)}
-                aria-labelledby="modal-modal-title"
-                aria-describedby="modal-modal-description"
+                open={showResultModal}
+                onClose={() => setShowResultModal(false)}
             >
                 <Box className='flex flex-col gap-16 justify-center absolute top-1/2 left-1/2 w-[400px] translate-x-[-50%] translate-y-[-50%] border-solid bg-light_background_grey p-48 text-black rounded-lg'>
-                    <h1 className='text-center'>{selectedPlace?.id}</h1>
-
-                    <ButtonCV2X label='Reserve' onClick={() => {}} />
-                    <ButtonCV2X label='Cancel' onClick={() => setModal(false)} color='secondary' />
+                    <h1 className='text-center'>Result</h1>
+                    <ButtonCV2X label='Close' onClick={() => setShowResultModal(false)} />
                 </Box>
             </Modal>
         </div>
