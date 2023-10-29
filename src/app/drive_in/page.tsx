@@ -1,6 +1,7 @@
 'use client'
 
 import { GoogleMap, useLoadScript, Marker } from '@react-google-maps/api'
+import { useTimer } from 'react-timer-hook';
 
 import PageTitle from "@/components/common/PageTitle";
 import { NAVBAR_LABEL } from "@/constants/LABEL";
@@ -19,11 +20,21 @@ export default function DriveIN() {
     const [selectedPlace, setSelectedPlace] = useState<SpaceParking>()
     const [penaltyStatus, setPenaltyStatus] = useState<PenaltyStatus>()
     const [showReserveModal, setShowReserveModal] = useState<boolean>(false)
+    const [resultStatus, setResultStatus] = useState<string>()
     const [showResultModal, setShowResultModal] = useState<boolean>(false)
+
+    const expiryTimestamp = new Date()
+
+    const {
+        seconds,
+        minutes,
+        isRunning,
+        restart,
+      } = useTimer({ expiryTimestamp, autoStart: false, onExpire: () => console.log(`time out`) });
 
     useEffect(() => {
         //@here fetch penalty of user
-        setPenaltyStatus(MockedPenalty[1])
+        setPenaltyStatus(MockedPenalty[0])
     })
 
     useEffect(() => {
@@ -40,6 +51,14 @@ export default function DriveIN() {
     const reservePark = (id: string) => {
         //@here Post reserve park by id
 
+        // if success
+        setResultStatus(`reserve complete: please checkin within 30min`)
+        const time = new Date();
+        time.setSeconds(time.getSeconds() + 1800); // 30 minutes timer
+        restart(time)
+
+        // if fail
+        // setResultStatus(`fail to reserve: `)
 
         setShowReserveModal(false)
         setShowResultModal(true)
@@ -53,7 +72,10 @@ export default function DriveIN() {
     return (
         <div className='h-[80dvh] flex flex-col gap-12 text-black'>
             <PageTitle title={NAVBAR_LABEL.CUSTOMERS_RESERVATION} />
-            <Penalty props={penaltyStatus} />
+            { isRunning ?
+                <div className='text-center text-h2 text-active_green'>{minutes}m {seconds}s left</div> :
+                <Penalty props={penaltyStatus} />
+            }
             <Card className='flex w-full h-full rounded-lg px-32 py-24'>
                 <GoogleMap
                     options={{ disableDefaultUI: true }}
@@ -82,8 +104,12 @@ export default function DriveIN() {
                 >
                     <Box className='flex flex-col gap-16 justify-center absolute top-1/2 left-1/2 w-[400px] translate-x-[-50%] translate-y-[-50%] border-solid bg-light_background_grey p-48 text-black rounded-lg'>
                         <h1 className='text-center'>Confirm: {selectedPlace.id}</h1>
-                        <ButtonCV2X label='Reserve' onClick={() => reservePark(selectedPlace.id)} />
-                        <ButtonCV2X label='Cancel' onClick={() => setShowReserveModal(false)} color='secondary' />
+                        { !isRunning &&
+                            <>
+                                <ButtonCV2X label='Reserve' onClick={() => reservePark(selectedPlace.id)} />
+                                <ButtonCV2X label='Close' onClick={() => setShowReserveModal(false)} color='secondary' />
+                            </>
+                        }
                     </Box>
                 </Modal>
             }
@@ -94,6 +120,7 @@ export default function DriveIN() {
             >
                 <Box className='flex flex-col gap-16 justify-center absolute top-1/2 left-1/2 w-[400px] translate-x-[-50%] translate-y-[-50%] border-solid bg-light_background_grey p-48 text-black rounded-lg'>
                     <h1 className='text-center'>Result</h1>
+                    <div>{resultStatus}</div>
                     <ButtonCV2X label='Close' onClick={() => setShowResultModal(false)} />
                 </Box>
             </Modal>
