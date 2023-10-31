@@ -60,7 +60,7 @@ export default function IconMapper(props: IconMapperProps) {
 			return <KeyboardDoubleArrowRightRoundedIcon sx={iconStyle} />;
 		case NAVBAR_LABEL.COLLAPSE:
 			return <KeyboardDoubleArrowLeftRoundedIcon sx={iconStyle} />;
-		case BUTTON_LABEL.CANCLE:
+		case BUTTON_LABEL.CANCEL:
 			return <CloseRoundedIcon sx={iconStyle} />;
 		case BUTTON_LABEL.CLEAR:
 			return <RefreshRoundedIcon sx={iconStyle} />;
@@ -78,7 +78,7 @@ export default function IconMapper(props: IconMapperProps) {
 			return <ZoomOutMapRoundedIcon sx={iconStyle} />;
 		case BUTTON_LABEL.MISSING:
 			return <RemoveRoundedIcon sx={iconStyle} />;
-		case BUTTON_LABEL.LOCATION:
+		case NAVBAR_LABEL.PARKING_SPACES:
 			return <LocationOnRoundedIcon sx={iconStyle} />;
 		case BUTTON_LABEL.STATUS:
 			return <CircleRoundedIcon sx={iconStyle} />;
