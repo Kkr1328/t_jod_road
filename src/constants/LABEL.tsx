@@ -5,6 +5,7 @@ export enum NAVBAR_LABEL {
 	EMERGENCY = 'Emergency',
 	HEARTBEAT = 'Heartbeat',
 	ENTITY_MANAGEMENT = 'Entity Management',
+	CUSTOMERS_RESERVATION = 'Drive-In',
 	RESERVATION = 'Reservation',
 	PARKING_SPACES = 'Parking spaces',
 	DRIVERS = 'Drivers',

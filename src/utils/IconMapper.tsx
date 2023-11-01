@@ -50,6 +50,8 @@ export default function IconMapper(props: IconMapperProps) {
 			return <DescriptionRoundedIcon sx={iconStyle} />;
 		case NAVBAR_LABEL.RESERVATION:
 			return <DirectionsCarRoundedIcon sx={iconStyle} />;
+		case NAVBAR_LABEL.CUSTOMERS_RESERVATION:
+			return <DirectionsCarRoundedIcon sx={iconStyle} />;
 		case NAVBAR_LABEL.DRIVERS:
 			return <PersonRoundedIcon sx={iconStyle} />;
 		case NAVBAR_LABEL.CAMERAS:
