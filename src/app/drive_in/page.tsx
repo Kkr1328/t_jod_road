@@ -2,14 +2,18 @@
 
 import { GoogleMap, useLoadScript, Marker } from '@react-google-maps/api'
 import { useTimer } from 'react-timer-hook';
+import { useEffect, useState } from 'react';
 
 import PageTitle from "@/components/common/PageTitle";
 import { NAVBAR_LABEL } from "@/constants/LABEL";
+
 import Card from '@mui/material/Card';
-import { useEffect, useState } from 'react';
 import { Modal, Box } from '@mui/material';
 import ButtonCV2X from '@/components/common/ButtonCV2X';
-import { MockedDriveIn, MockedPenalty, SpaceParking, PenaltyStatus } from '@/mock/DRIVE_IN';
+import { MockedDriveIn, SpaceParking, PenaltyStatus } from '@/mock/DRIVE_IN';
+import { getParkingSpaceByID } from '@/services/parking-lot';
+import { getPenaltyStatus } from '@/services/user';
+import { createReservation } from '@/services/matching';
 
 const center = {
     lat: 13.738329190226818,
@@ -18,7 +22,7 @@ const center = {
 
 export default function DriveIN() {
     const [selectedPlace, setSelectedPlace] = useState<SpaceParking>()
-    const [penaltyStatus, setPenaltyStatus] = useState<PenaltyStatus>()
+    const [penaltyStatus, setPenaltyStatus] = useState<boolean>()
     const [showReserveModal, setShowReserveModal] = useState<boolean>(false)
     const [resultStatus, setResultStatus] = useState<string>()
     const [showResultModal, setShowResultModal] = useState<boolean>(false)
@@ -33,13 +37,14 @@ export default function DriveIN() {
       } = useTimer({ expiryTimestamp, autoStart: false, onExpire: () => console.log(`time out`) });
 
     useEffect(() => {
-        //@here fetch penalty of user
-        setPenaltyStatus(MockedPenalty[0])
-    })
+        getPenaltyStatus((data) => setPenaltyStatus(data))
+    }, [])
 
     useEffect(() => {
         if (showReserveModal) {
-            //@here Fetch detail by id
+            // @here selectedPlace.id instead hardcode
+            if(selectedPlace === undefined) return
+            getParkingSpaceByID('6544f991d38dea00faa140f3', setSelectedPlace)
         }
     }, [showReserveModal]);
 
@@ -49,19 +54,24 @@ export default function DriveIN() {
     }
 
     const reservePark = (id: string) => {
-        //@here Post reserve park by id
-
-        // if success
-        setResultStatus(`reserve complete: please checkin within 30min`)
-        const time = new Date();
-        time.setSeconds(time.getSeconds() + 1800); // 30 minutes timer
-        restart(time)
-
-        // if fail
-        // setResultStatus(`fail to reserve: `)
-
-        setShowReserveModal(false)
-        setShowResultModal(true)
+        createReservation(id)
+            .then(e => {
+                if (e.success) {
+                    setResultStatus(`reserve complete: please checkin within 30min`)
+                    const time = new Date();
+                    time.setSeconds(time.getSeconds() + 1800); // 30 minutes timer
+                    restart(time)
+                } else {
+                    throw Error
+                }
+            })
+            .catch(() => {
+                setResultStatus(`fail to reserve`)
+            })
+            .finally(() => {
+                setShowReserveModal(false)
+                setShowResultModal(true)
+            })
     }
 
     const { isLoaded } = useLoadScript({
@@ -74,7 +84,8 @@ export default function DriveIN() {
             <PageTitle title={NAVBAR_LABEL.CUSTOMERS_RESERVATION} />
             { isRunning ?
                 <div className='text-center text-h2 text-active_green'>{minutes}m {seconds}s left</div> :
-                <Penalty props={penaltyStatus} />
+                <span>{penaltyStatus ? 'You are banned' : 'Normal status'}</span>
+                // <Penalty props={penaltyStatus} />
             }
             <Card className='flex w-full h-full rounded-lg px-32 py-24'>
                 <GoogleMap
@@ -87,7 +98,7 @@ export default function DriveIN() {
                         <Marker
                             icon={{ url: '/parking_pin.svg', scaledSize: new google.maps.Size(64, 64) }}
                             label={{ text: item.available.toString(), color: 'white', fontWeight: 'bold', className: 'translate-y-[-5px]' }}
-                            position={item.position}
+                            position={new google.maps.LatLng(item.lat, item.lng)}
                             onClick={() => openModal(item)}
                             key={item.id}
                         />
@@ -103,12 +114,13 @@ export default function DriveIN() {
                     aria-describedby="modal-modal-description"
                 >
                     <Box className='flex flex-col gap-16 justify-center absolute top-1/2 left-1/2 w-[400px] translate-x-[-50%] translate-y-[-50%] border-solid bg-light_background_grey p-48 text-black rounded-lg'>
-                        <h1 className='text-center'>Confirm: {selectedPlace.id}</h1>
-                        { !isRunning &&
+                        { !isRunning ?
                             <>
+                                <h1 className='text-center'>Confirm with <span className='font-bold'>{selectedPlace.name}</span>?</h1>
                                 <ButtonCV2X label='Reserve' onClick={() => reservePark(selectedPlace.id)} />
                                 <ButtonCV2X label='Close' onClick={() => setShowReserveModal(false)} color='secondary' />
-                            </>
+                            </> :
+                            <h1 className='text-center'>Location: <span className='font-bold'>{selectedPlace.name}</span></h1>
                         }
                     </Box>
                 </Modal>
@@ -133,7 +145,7 @@ type Props = {
 }
 
 function Penalty({ props }: Props) {
-    if (!props) return <>Loading Penalty</>
+    if (!props) return <>Loading Penalty...</>
     if (props.status === 'NORMAL') {
         if (props.leftQuota >= 5) {
             return <span>You are TCP (Reliable)</span>
