@@ -9,7 +9,7 @@ const createReservation = async (parkingLotId: string): Promise<Response> => {
     try {
         const response = await axios.post(`http://localhost:9000/createReservation`, {
             userId: '',
-            parkingLotId: '6544f991d38dea00faa140f3'
+            parkingLotId: parkingLotId
         });
         return { success: true, data: response.data };
     } catch (error) {
