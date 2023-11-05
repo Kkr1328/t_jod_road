@@ -10,7 +10,9 @@ import { NAVBAR_LABEL } from "@/constants/LABEL";
 import Card from '@mui/material/Card';
 import { Modal, Box } from '@mui/material';
 import ButtonCV2X from '@/components/common/ButtonCV2X';
-import { SpaceParking, PenaltyStatus } from '@/mock/DRIVE_IN';
+import PenaltyBadge from '@/components/common/PenaltyBadge';
+
+import { SpaceParking } from '@/mock/DRIVE_IN';
 
 import { getParkingSpaceByID } from '@/services/parking-lot';
 import { getPenaltyStatus } from '@/services/user';
@@ -158,23 +160,6 @@ export default function DriveIN() {
             </Modal>
         </div>
     )
-}
-
-type Props = {
-    props: PenaltyStatus | undefined
-}
-
-function Penalty({ props }: Props) {
-    if (!props) return <>Loading Penalty...</>
-    if (props.status === 'NORMAL') {
-        if (props.leftQuota >= 5) {
-            return <span>You are TCP (Reliable)</span>
-        } else {
-            return <span>Left quota before get penalty: {props.leftQuota}</span>
-        }
-    } else {
-        return <span>Before <span className='font-bold'>{props.unBannedDate}</span>, you must deposit to use system</span>
-    }
 }
 
 function gRPCMapping(data: any): SpaceParking[] {
