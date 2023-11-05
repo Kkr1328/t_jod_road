@@ -10,10 +10,16 @@ import { NAVBAR_LABEL } from "@/constants/LABEL";
 import Card from '@mui/material/Card';
 import { Modal, Box } from '@mui/material';
 import ButtonCV2X from '@/components/common/ButtonCV2X';
-import { MockedDriveIn, SpaceParking, PenaltyStatus } from '@/mock/DRIVE_IN';
+import { SpaceParking, PenaltyStatus } from '@/mock/DRIVE_IN';
+
 import { getParkingSpaceByID } from '@/services/parking-lot';
 import { getPenaltyStatus } from '@/services/user';
 import { createReservation } from '@/services/matching';
+
+import { GetAvailableSpacesServiceClient } from '@/proto/Parking-spaceServiceClientPb'
+// @ts-ignore
+import { ParkingSpaceList } from '@/proto/parking-space_pb'
+import router from 'next/router';
 
 const center = {
     lat: 13.738329190226818,
@@ -21,6 +27,7 @@ const center = {
 };
 
 export default function DriveIN() {
+    const [parkingMap, setParkingMap] = useState<SpaceParking[]>()
     const [selectedPlace, setSelectedPlace] = useState<SpaceParking>()
     const [penaltyStatus, setPenaltyStatus] = useState<boolean>()
     const [showReserveModal, setShowReserveModal] = useState<boolean>(false)
@@ -38,13 +45,26 @@ export default function DriveIN() {
 
     useEffect(() => {
         getPenaltyStatus((data) => setPenaltyStatus(data))
+
+        const strRq = new ParkingSpaceList();
+        const client = new GetAvailableSpacesServiceClient('http://localhost:8080/', null, null)
+        const stream = client.getAvailableSpaces(strRq, {})
+
+        stream.on('data', (res: any) => {
+            console.log(res)
+            const data: SpaceParking[] = gRPCMapping(res.array)
+            setParkingMap(data)
+        })
+
+        router.events.on('routeChangeStart', (url, { shallow }) => {
+            stream.cancel()
+        });
     }, [])
 
     useEffect(() => {
         if (showReserveModal) {
-            // @here selectedPlace.id instead hardcode
             if(selectedPlace === undefined) return
-            getParkingSpaceByID('6544f991d38dea00faa140f3', setSelectedPlace)
+            getParkingSpaceByID(selectedPlace.id, setSelectedPlace)
         }
     }, [showReserveModal]);
 
@@ -94,10 +114,10 @@ export default function DriveIN() {
                     center={center}
                     mapContainerClassName='w-full'
                 >
-                    {MockedDriveIn.map((item) =>
+                    {parkingMap?.map((item) =>
                         <Marker
                             icon={{ url: '/parking_pin.svg', scaledSize: new google.maps.Size(64, 64) }}
-                            label={{ text: item.available.toString(), color: 'white', fontWeight: 'bold', className: 'translate-y-[-5px]' }}
+                            label={{ text: item.available !== null ? item.available.toString() : "fail", color: 'white', fontWeight: 'bold', className: 'translate-y-[-5px]' }}
                             position={new google.maps.LatLng(item.lat, item.lng)}
                             onClick={() => openModal(item)}
                             key={item.id}
@@ -155,4 +175,15 @@ function Penalty({ props }: Props) {
     } else {
         return <span>Before <span className='font-bold'>{props.unBannedDate}</span>, you must deposit to use system</span>
     }
+}
+
+function gRPCMapping(data: any): SpaceParking[] {
+    const arr = data[0]
+    let final:SpaceParking[] = []
+    for (let index = 0; index < arr.length; index++) {
+        const element = arr[index];
+        const [ id, name, lat, lng, available ] = element
+        final.push({ id, name, lat, lng, available })
+    }
+    return final
 }

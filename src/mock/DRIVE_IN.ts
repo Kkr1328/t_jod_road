@@ -3,8 +3,7 @@ export interface SpaceParking {
     lat: number,
     lng: number,
     name: string,
-    totalParking: number,
-    available: number
+    available: number | null
 }
 
 export const MockedDriveIn: SpaceParking[] = [
@@ -13,23 +12,23 @@ export const MockedDriveIn: SpaceParking[] = [
         lat: 13.748329190226818,
         lng: 100.52718982270956,
         name: "animal",
-        totalParking: 100,
+        // totalParking: 100,
         available: 12
     },
     {
-        id: '1',
+        id: '2',
         lat: 13.738329190226818,
         lng: 100.52718982270956,
         name: "animal",
-        totalParking: 100,
+        // totalParking: 100,
         available: 21
     },
     {
-        id: '1',
+        id: '6545bb587f320b6cd7cfe7c2',
         lat: 13.738329190226818,
         lng: 100.53318982270956,
         name: "animal",
-        totalParking: 100,
+        // totalParking: 100,
         available: 55
     },
 ]
