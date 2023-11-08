@@ -224,7 +224,7 @@ proto.parkingSpace.ParkingSpace.toObject = function(includeInstance, msg) {
     name: jspb.Message.getFieldWithDefault(msg, 2, ""),
     lat: jspb.Message.getFloatingPointFieldWithDefault(msg, 3, 0.0),
     lng: jspb.Message.getFloatingPointFieldWithDefault(msg, 4, 0.0),
-    available: jspb.Message.getFieldWithDefault(msg, 5, 0)
+    available: jspb.Message.getFloatingPointFieldWithDefault(msg, 5, 0.0)
   };
 
   if (includeInstance) {
@@ -278,7 +278,7 @@ proto.parkingSpace.ParkingSpace.deserializeBinaryFromReader = function(msg, read
       msg.setLng(value);
       break;
     case 5:
-      var value = /** @type {number} */ (reader.readInt32());
+      var value = /** @type {number} */ (reader.readDouble());
       msg.setAvailable(value);
       break;
     default:
@@ -339,8 +339,8 @@ proto.parkingSpace.ParkingSpace.serializeBinaryToWriter = function(message, writ
     );
   }
   f = message.getAvailable();
-  if (f !== 0) {
-    writer.writeInt32(
+  if (f !== 0.0) {
+    writer.writeDouble(
       5,
       f
     );
@@ -421,11 +421,11 @@ proto.parkingSpace.ParkingSpace.prototype.setLng = function(value) {
 
 
 /**
- * optional int32 available = 5;
+ * optional double available = 5;
  * @return {number}
  */
 proto.parkingSpace.ParkingSpace.prototype.getAvailable = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 5, 0));
+  return /** @type {number} */ (jspb.Message.getFloatingPointFieldWithDefault(this, 5, 0.0));
 };
 
 
@@ -434,7 +434,7 @@ proto.parkingSpace.ParkingSpace.prototype.getAvailable = function() {
  * @return {!proto.parkingSpace.ParkingSpace} returns this
  */
 proto.parkingSpace.ParkingSpace.prototype.setAvailable = function(value) {
-  return jspb.Message.setProto3IntField(this, 5, value);
+  return jspb.Message.setProto3FloatField(this, 5, value);
 };
 
 
