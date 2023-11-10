@@ -35,19 +35,19 @@ export const MockedDriveIn: SpaceParking[] = [
 
 export interface PenaltyStatus {
     status: 'NORMAL' | 'PENALTY',
-    unBannedDate: string | null,
+    unBannedDate: string,
     leftQuota: number
 }
 
-export const MockedPenalty: PenaltyStatus[] = [
-    {
-        status: 'NORMAL',
-        unBannedDate: null,
-        leftQuota: 3
-    },
-    {
-        status: 'PENALTY',
-        unBannedDate: new Date("2023-12-15").toDateString(),
-        leftQuota: 0
-    }
-]
+// export const MockedPenalty: PenaltyStatus[] = [
+//     {
+//         status: 'NORMAL',
+//         unBannedDate: null,
+//         leftQuota: 3
+//     },
+//     {
+//         status: 'PENALTY',
+//         unBannedDate: new Date("2023-12-15").toDateString(),
+//         leftQuota: 0
+//     }
+// ]

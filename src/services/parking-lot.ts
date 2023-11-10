@@ -1,8 +1,9 @@
 import axios from "axios";
+import { PARKING_SERVICE_URL } from "./constant";
 
 const getParkingSpaceByID = async (id: string, callback: (data: any) => void) => {
     await axios
-        .get(`http://localhost:4000/getParkingSpace/${id}`)
+        .get(`${PARKING_SERVICE_URL}/getParkingSpace/${id}`)
         .then((response) => {
             callback(response.data);
         })

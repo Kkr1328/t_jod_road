@@ -12,11 +12,11 @@ import { Modal, Box } from '@mui/material';
 import ButtonCV2X from '@/components/common/ButtonCV2X';
 import PenaltyBadge from '@/components/common/PenaltyBadge';
 
-import { SpaceParking } from '@/mock/DRIVE_IN';
+import { PenaltyStatus, SpaceParking } from '@/mock/DRIVE_IN';
 
 import { getParkingSpaceByID } from '@/services/parking-lot';
 import { getPenaltyStatus } from '@/services/user';
-import { createReservation } from '@/services/matching';
+import { createReservation, getActiveReservationsByUser } from '@/services/matching';
 
 import { GetAvailableSpacesServiceClient } from '@/proto/Parking-spaceServiceClientPb'
 // @ts-ignore
@@ -31,7 +31,7 @@ const center = {
 export default function DriveIN() {
     const [parkingMap, setParkingMap] = useState<SpaceParking[]>()
     const [selectedPlace, setSelectedPlace] = useState<SpaceParking>()
-    const [penaltyStatus, setPenaltyStatus] = useState<boolean>()
+    const [penaltyStatus, setPenaltyStatus] = useState<PenaltyStatus | null>(null)
     const [showReserveModal, setShowReserveModal] = useState<boolean>(false)
     const [resultStatus, setResultStatus] = useState<string>()
     const [showResultModal, setShowResultModal] = useState<boolean>(false)
@@ -61,6 +61,16 @@ export default function DriveIN() {
         router.events.on('routeChangeStart', (url, { shallow }) => {
             stream.cancel()
         });
+
+        const activate = getActiveReservationsByUser()
+        activate
+            .then(e => e.data)
+            .then(e => {
+                if(e.length > 0) {
+                    const d = new Date(e[e.length - 1].lateAt)
+                    restart(d)
+                }
+            })
     }, [])
 
     useEffect(() => {
@@ -87,8 +97,8 @@ export default function DriveIN() {
                     throw Error
                 }
             })
-            .catch(() => {
-                setResultStatus(`fail to reserve`)
+            .catch((e) => {
+                setResultStatus(`fail to reserve ${e}`)
             })
             .finally(() => {
                 setShowReserveModal(false)
@@ -106,8 +116,7 @@ export default function DriveIN() {
             <PageTitle title={NAVBAR_LABEL.CUSTOMERS_RESERVATION} />
             { isRunning ?
                 <div className='text-center text-h2 text-active_green'>{minutes}m {seconds}s left</div> :
-                <span>{penaltyStatus ? 'You are banned' : 'Normal status'}</span>
-                // <Penalty props={penaltyStatus} />
+                <PenaltyBadge props={penaltyStatus} />
             }
             <Card className='flex w-full h-full rounded-lg px-32 py-24'>
                 <GoogleMap
