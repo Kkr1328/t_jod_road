@@ -2,14 +2,28 @@
 
 import { GoogleMap, useLoadScript, Marker } from '@react-google-maps/api'
 import { useTimer } from 'react-timer-hook';
+import { useEffect, useState } from 'react';
 
 import PageTitle from "@/components/common/PageTitle";
 import { NAVBAR_LABEL } from "@/constants/LABEL";
+
 import Card from '@mui/material/Card';
-import { useEffect, useState } from 'react';
 import { Modal, Box } from '@mui/material';
 import ButtonCV2X from '@/components/common/ButtonCV2X';
-import { MockedDriveIn, MockedPenalty, SpaceParking, PenaltyStatus } from '@/mock/DRIVE_IN';
+import PenaltyBadge from '@/components/common/PenaltyBadge';
+
+import { PenaltyStatus, SpaceParking } from '@/mock/DRIVE_IN';
+
+import { getParkingSpaceByID } from '@/services/parking-lot';
+import { getPenaltyStatus } from '@/services/user';
+import { createReservation, getActiveReservationsByUser } from '@/services/matching';
+
+import { GetAvailableSpacesServiceClient } from '@/proto/Parking-spaceServiceClientPb'
+// @ts-ignore
+import { ParkingSpaceList } from '@/proto/parking-space_pb'
+import router, { Router } from 'next/router';
+import Navbar from '@/components/Navbar';
+import { useRouter } from 'next/navigation';
 
 const center = {
     lat: 13.738329190226818,
@@ -17,11 +31,13 @@ const center = {
 };
 
 export default function DriveIN() {
+    const [parkingMap, setParkingMap] = useState<SpaceParking[]>()
     const [selectedPlace, setSelectedPlace] = useState<SpaceParking>()
-    const [penaltyStatus, setPenaltyStatus] = useState<PenaltyStatus>()
+    const [penaltyStatus, setPenaltyStatus] = useState<PenaltyStatus | null>(null)
     const [showReserveModal, setShowReserveModal] = useState<boolean>(false)
     const [resultStatus, setResultStatus] = useState<string>()
     const [showResultModal, setShowResultModal] = useState<boolean>(false)
+    const nav_router = useRouter()
 
     const expiryTimestamp = new Date()
 
@@ -33,13 +49,37 @@ export default function DriveIN() {
       } = useTimer({ expiryTimestamp, autoStart: false, onExpire: () => console.log(`time out`) });
 
     useEffect(() => {
-        //@here fetch penalty of user
-        setPenaltyStatus(MockedPenalty[0])
-    })
+        getPenaltyStatus((data) => setPenaltyStatus(data))
+
+        const strRq = new ParkingSpaceList();
+        const client = new GetAvailableSpacesServiceClient('http://localhost:8080/', null, null)
+        const stream = client.getAvailableSpaces(strRq, {})
+
+        stream.on('data', (res: any) => {
+            console.log(res)
+            const data: SpaceParking[] = gRPCMapping(res.array)
+            setParkingMap(data)
+        })
+
+        router.events.on('routeChangeStart', (url, { shallow }) => {
+            stream.cancel()
+        });
+
+        const activate = getActiveReservationsByUser()
+        activate
+            .then(e => e.data)
+            .then(e => {
+                if(e.length > 0) {
+                    const d = new Date(e[e.length - 1].lateAt)
+                    restart(d)
+                }
+            })
+    }, [])
 
     useEffect(() => {
         if (showReserveModal) {
-            //@here Fetch detail by id
+            if(selectedPlace === undefined) return
+            getParkingSpaceByID(selectedPlace.id, setSelectedPlace)
         }
     }, [showReserveModal]);
 
@@ -49,32 +89,40 @@ export default function DriveIN() {
     }
 
     const reservePark = (id: string) => {
-        //@here Post reserve park by id
-
-        // if success
-        setResultStatus(`reserve complete: please checkin within 30min`)
-        const time = new Date();
-        time.setSeconds(time.getSeconds() + 1800); // 30 minutes timer
-        restart(time)
-
-        // if fail
-        // setResultStatus(`fail to reserve: `)
-
-        setShowReserveModal(false)
-        setShowResultModal(true)
+        createReservation(id)
+            .then(e => {
+                if (e.success) {
+                    setResultStatus(`reserve complete: please checkin within 30min`)
+                    const time = new Date();
+                    time.setSeconds(time.getSeconds() + 1800); // 30 minutes timer
+                    restart(time)
+                } else {
+                    throw Error
+                }
+            })
+            .catch((e) => {
+                setResultStatus(`fail to reserve ${e}`)
+            })
+            .finally(() => {
+                setShowReserveModal(false)
+                setShowResultModal(true)
+            })
     }
 
     const { isLoaded } = useLoadScript({
         googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? "<GOOGLE-MAP-KEY>",
     })
-
+    if (typeof window !== 'undefined') {
+        if (localStorage.getItem('token') === null) nav_router.push('/login')
+    }
     if (!isLoaded) return 'Loading'
     return (
         <div className='h-[80dvh] flex flex-col gap-12 text-black'>
+            <Navbar />
             <PageTitle title={NAVBAR_LABEL.CUSTOMERS_RESERVATION} />
             { isRunning ?
                 <div className='text-center text-h2 text-active_green'>{minutes}m {seconds}s left</div> :
-                <Penalty props={penaltyStatus} />
+                <PenaltyBadge props={penaltyStatus} />
             }
             <Card className='flex w-full h-full rounded-lg px-32 py-24'>
                 <GoogleMap
@@ -83,11 +131,11 @@ export default function DriveIN() {
                     center={center}
                     mapContainerClassName='w-full'
                 >
-                    {MockedDriveIn.map((item) =>
+                    {parkingMap?.map((item) =>
                         <Marker
                             icon={{ url: '/parking_pin.svg', scaledSize: new google.maps.Size(64, 64) }}
-                            label={{ text: item.available.toString(), color: 'white', fontWeight: 'bold', className: 'translate-y-[-5px]' }}
-                            position={item.position}
+                            label={{ text: item.available !== null ? item.available.toString() : "fail", color: 'white', fontWeight: 'bold', className: 'translate-y-[-5px]' }}
+                            position={new google.maps.LatLng(item.lat, item.lng)}
                             onClick={() => openModal(item)}
                             key={item.id}
                         />
@@ -103,12 +151,13 @@ export default function DriveIN() {
                     aria-describedby="modal-modal-description"
                 >
                     <Box className='flex flex-col gap-16 justify-center absolute top-1/2 left-1/2 w-[400px] translate-x-[-50%] translate-y-[-50%] border-solid bg-light_background_grey p-48 text-black rounded-lg'>
-                        <h1 className='text-center'>Confirm: {selectedPlace.id}</h1>
-                        { !isRunning &&
+                        { !isRunning ?
                             <>
+                                <h1 className='text-center'>Confirm with <span className='font-bold'>{selectedPlace.name}</span>?</h1>
                                 <ButtonCV2X label='Reserve' onClick={() => reservePark(selectedPlace.id)} />
                                 <ButtonCV2X label='Close' onClick={() => setShowReserveModal(false)} color='secondary' />
-                            </>
+                            </> :
+                            <h1 className='text-center'>Location: <span className='font-bold'>{selectedPlace.name}</span></h1>
                         }
                     </Box>
                 </Modal>
@@ -128,19 +177,13 @@ export default function DriveIN() {
     )
 }
 
-type Props = {
-    props: PenaltyStatus | undefined
-}
-
-function Penalty({ props }: Props) {
-    if (!props) return <>Loading Penalty</>
-    if (props.status === 'NORMAL') {
-        if (props.leftQuota >= 5) {
-            return <span>You are TCP (Reliable)</span>
-        } else {
-            return <span>Left quota before get penalty: {props.leftQuota}</span>
-        }
-    } else {
-        return <span>Before <span className='font-bold'>{props.unBannedDate}</span>, you must deposit to use system</span>
+function gRPCMapping(data: any): SpaceParking[] {
+    const arr = data[0]
+    let final:SpaceParking[] = []
+    for (let index = 0; index < arr.length; index++) {
+        const element = arr[index];
+        const [ id, name, lat, lng, available ] = element
+        final.push({ id, name, lat, lng, available })
     }
+    return final
 }
