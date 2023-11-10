@@ -21,7 +21,9 @@ import { createReservation, getActiveReservationsByUser } from '@/services/match
 import { GetAvailableSpacesServiceClient } from '@/proto/Parking-spaceServiceClientPb'
 // @ts-ignore
 import { ParkingSpaceList } from '@/proto/parking-space_pb'
-import router from 'next/router';
+import router, { Router } from 'next/router';
+import Navbar from '@/components/Navbar';
+import { useRouter } from 'next/navigation';
 
 const center = {
     lat: 13.738329190226818,
@@ -35,6 +37,7 @@ export default function DriveIN() {
     const [showReserveModal, setShowReserveModal] = useState<boolean>(false)
     const [resultStatus, setResultStatus] = useState<string>()
     const [showResultModal, setShowResultModal] = useState<boolean>(false)
+    const nav_router = useRouter()
 
     const expiryTimestamp = new Date()
 
@@ -109,10 +112,13 @@ export default function DriveIN() {
     const { isLoaded } = useLoadScript({
         googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? "<GOOGLE-MAP-KEY>",
     })
-
+    if (typeof window !== 'undefined') {
+        if (localStorage.getItem('token') === null) nav_router.push('/login')
+    }
     if (!isLoaded) return 'Loading'
     return (
         <div className='h-[80dvh] flex flex-col gap-12 text-black'>
+            <Navbar />
             <PageTitle title={NAVBAR_LABEL.CUSTOMERS_RESERVATION} />
             { isRunning ?
                 <div className='text-center text-h2 text-active_green'>{minutes}m {seconds}s left</div> :

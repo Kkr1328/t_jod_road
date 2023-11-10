@@ -4,10 +4,9 @@ import { USER_SERVICE_URL } from "./constant";
 const getProfile = async (): Promise<Number> => {
     const url = `${USER_SERVICE_URL}/getProfile`
 
-    // fix this token_access hard-code
     const config = {
         headers: {
-            'Authorization': 'Bearer ' + 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIsInVzZXJuYW1lIjoicGFsbSIsImlhdCI6MTY5OTU5OTg5OCwiZXhwIjoxNzAyMTkxODk4fQ.4phefP4G-Bgl_-7rMgVCCAxe7v4959GivHDVe3Z6zxE' 
+            'Authorization': 'Bearer ' + localStorage.getItem('token') 
         }
     }
     const userId = await axios
