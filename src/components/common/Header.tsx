@@ -22,11 +22,9 @@ export default function Header() {
 		router.push('/login');
 	};
 	return (
-		<AppBar className="z-20 fixed bg-black">
+		<AppBar className="z-20 fixed">
 			<Toolbar>
-				<div style={{ flex: 1 }}>
-					<Typography>T-jod-Road</Typography>
-				</div>
+				<Image src="/next.svg" alt="5G-V2X logo" width={160} height={40} />
 				<div className="grow" />
 				<Button onClick={handleProfile}>
 					<Avatar />
