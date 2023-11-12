@@ -33,7 +33,7 @@ export default function Home() {
 
 			localStorage.setItem('token', token);
 
-			router.push('/drive_in');
+			router.push('/');
 		} catch (error) {
 			console.log(error);
 			setError('Wrong username or password. Please try again.');

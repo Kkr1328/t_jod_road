@@ -15,6 +15,13 @@ const getProfile = async () => {
                 })
 }
 
+const getIsUserAdmin = () => {
+    const isAdmin = getProfile()
+        .then(e => e.id)
+        .then(id => { return id === 1 })
+    return isAdmin
+}
+
 const getPenaltyStatus = async (callback: (data: any) => void) => {
     const url = `${USER_SERVICE_URL}/getPenaltyStatus`;
 
@@ -37,5 +44,6 @@ const getPenaltyStatus = async (callback: (data: any) => void) => {
 
 export {
     getProfile,
+    getIsUserAdmin,
     getPenaltyStatus
 }
