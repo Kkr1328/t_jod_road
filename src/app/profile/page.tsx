@@ -1,6 +1,5 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import axios from 'axios';
 
 import { Typography, Stack, TextField, Button, Grid, Card } from '@mui/material';
@@ -14,11 +13,9 @@ import {
 	validateConfirmPassword,
 } from '@/utilities/validation';
 import { validation } from '@/types/Validation';
-import Navbar from '@/components/Navbar';
 import PasswordTextField from '@/components/PasswordTextField';
 
 export default function Home() {
-	const router = useRouter();
 	const [username, setUsername] = useState<string>('');
 	const [email, setEmail] = useState<string>('');
 	const [newUsername, setNewUsername] = useState<string>('');
@@ -109,99 +106,94 @@ export default function Home() {
 
 	return (
 		<>
-			<Navbar />
-			<div className="min-h-screen flex items-center justify-center">
-				<>
-					<Grid
-						container
-						component="main"
-						sx={{
-							height: '100vh',
-							backgroundImage: 'url(https://source.unsplash.com/1600x900/?parking)',
-							backgroundRepeat: 'no-repeat',
-							backgroundColor: 'rgba(255, 255, 255, 0.75)',
-							backgroundSize: 'cover',
-							backgroundPosition: 'center',
-							opacity: '0.5',
-						}}
-					/>
-					<Card
-						variant="outlined"
-						sx={{
-							minWidth: '275px',
-							display: 'flex',
-							flexDirection: 'column',
-							alignItems: 'center',
-							justifyContent: 'center',
-							paddingX: '5vw',
-							paddingY: '10vh',
-							position: 'absolute',
-							top: '50%',
-							left: '50%',
-							transform: 'translate(-50%, -50%)',
-							zIndex: 1,
-							borderRadius: 3,
-						}}
-					>
-						<Stack spacing={2} alignItems="center">
-							{!isEdit && (
-								<>
-									<Typography variant="h3" align="center">
-										{username}
-									</Typography>
-									<Typography variant="h5" align="center">
-										{email}
-									</Typography>
-									<Button onClick={() => setIsEdit(true)}>
-										<EditIcon />
-									</Button>
-								</>
-							)}
-							{isEdit && (
-								<>
-									<Typography align="center" component="h1" variant="h5">
-										Edit Profile
-									</Typography>
-									<TextField
-										fullWidth
-										label="Username"
-										error={isSubmit && usernameErr.err}
-										helperText={isSubmit && usernameErr.msg}
-										placeholder="Username"
-										variant="outlined"
-										value={newUsername}
-										onChange={(e) => setNewUsername(e.target.value)}
-									/>
-									<PasswordTextField
-										label="Password"
-										error={isSubmit && passwordErr.err}
-										errorMsg={isSubmit ? passwordErr.msg : ''}
-										placeholder="Password"
-										value={newPassword}
-										onChange={handleNewPasswordChange}
-									/>
-									<PasswordTextField
-										label="Confirm Password"
-										error={isSubmit && confirmPasswordErr.err}
-										errorMsg={isSubmit ? confirmPasswordErr.msg : ''}
-										placeholder="Confirm Password"
-										value={confirmPassword}
-										onChange={handleConfirmPasswordChange}
-									/>
-									<div>
-										<Button onClick={handleCancelEdit}>
-											<ClearIcon color="error" />
-										</Button>
-										<Button onClick={handleSave}>
-											<CheckIcon color="success" />
-										</Button>
-									</div>
-								</>
-							)}
-						</Stack>
-					</Card>
-				</>
-			</div>
+			<Grid
+				container
+				component="main"
+				sx={{
+					height: '90%',
+					backgroundImage: 'url(https://source.unsplash.com/1600x900/?parking)',
+					backgroundRepeat: 'no-repeat',
+					backgroundColor: 'rgba(255, 255, 255, 0.75)',
+					backgroundSize: 'cover',
+					backgroundPosition: 'center',
+					opacity: '0.5',
+				}}
+			/>
+			<Card
+				variant="outlined"
+				sx={{
+					minWidth: '275px',
+					display: 'flex',
+					flexDirection: 'column',
+					alignItems: 'center',
+					justifyContent: 'center',
+					paddingX: '5vw',
+					paddingY: '10vh',
+					position: 'absolute',
+					top: '50%',
+					left: '50%',
+					transform: 'translate(-50%, -50%)',
+					zIndex: 1,
+					borderRadius: 3,
+				}}
+			>
+				<Stack spacing={2} alignItems="center">
+					{!isEdit && (
+						<>
+							<Typography variant="h3" align="center">
+								{username}
+							</Typography>
+							<Typography variant="h5" align="center">
+								{email}
+							</Typography>
+							<Button onClick={() => setIsEdit(true)}>
+								<EditIcon />
+							</Button>
+						</>
+					)}
+					{isEdit && (
+						<>
+							<Typography align="center" component="h1" variant="h5">
+								Edit Profile
+							</Typography>
+							<TextField
+								fullWidth
+								label="Username"
+								error={isSubmit && usernameErr.err}
+								helperText={isSubmit && usernameErr.msg}
+								placeholder="Username"
+								variant="outlined"
+								value={newUsername}
+								onChange={(e) => setNewUsername(e.target.value)}
+							/>
+							<PasswordTextField
+								label="Password"
+								error={isSubmit && passwordErr.err}
+								errorMsg={isSubmit ? passwordErr.msg : ''}
+								placeholder="Password"
+								value={newPassword}
+								onChange={handleNewPasswordChange}
+							/>
+							<PasswordTextField
+								label="Confirm Password"
+								error={isSubmit && confirmPasswordErr.err}
+								errorMsg={isSubmit ? confirmPasswordErr.msg : ''}
+								placeholder="Confirm Password"
+								value={confirmPassword}
+								onChange={handleConfirmPasswordChange}
+							/>
+							<div>
+								<Button onClick={handleCancelEdit}>
+									<ClearIcon color="error" />
+								</Button>
+								<Button onClick={handleSave}>
+									<CheckIcon color="success" />
+								</Button>
+							</div>
+						</>
+					)}
+				</Stack>
+			</Card>
 		</>
 	);
 }
