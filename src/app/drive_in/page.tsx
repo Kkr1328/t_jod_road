@@ -56,7 +56,6 @@ export default function DriveIN() {
         const stream = client.getAvailableSpaces(strRq, {})
 
         stream.on('data', (res: any) => {
-            console.log(res)
             const data: SpaceParking[] = gRPCMapping(res.array)
             setParkingMap(data)
         })
@@ -117,63 +116,66 @@ export default function DriveIN() {
     }
     if (!isLoaded) return 'Loading'
     return (
-        <div className='h-[80dvh] flex flex-col gap-12 text-black'>
+        <>
             <Navbar />
-            <PageTitle title={NAVBAR_LABEL.CUSTOMERS_RESERVATION} />
-            { isRunning ?
-                <div className='text-center text-h2 text-active_green'>{minutes}m {seconds}s left</div> :
-                <PenaltyBadge props={penaltyStatus} />
-            }
-            <Card className='flex w-full h-full rounded-lg px-32 py-24'>
-                <GoogleMap
-                    options={{ disableDefaultUI: true }}
-                    zoom={16}
-                    center={center}
-                    mapContainerClassName='w-full'
-                >
-                    {parkingMap?.map((item) =>
-                        <Marker
-                            icon={{ url: '/parking_pin.svg', scaledSize: new google.maps.Size(64, 64) }}
-                            label={{ text: item.available !== null ? item.available.toString() : "fail", color: 'white', fontWeight: 'bold', className: 'translate-y-[-5px]' }}
-                            position={new google.maps.LatLng(item.lat, item.lng)}
-                            onClick={() => openModal(item)}
-                            key={item.id}
-                        />
-                    )}
-                </GoogleMap>
-            </Card>
-
-            {selectedPlace &&
+            <div className='h-[80dvh] flex flex-col gap-12 text-black px-32 mt-16'>
+                <PageTitle title={NAVBAR_LABEL.CUSTOMERS_RESERVATION} />
+                { isRunning ?
+                    <div className='text-center text-h2 text-active_green'>{minutes}m {seconds}s left</div> :
+                    <PenaltyBadge props={penaltyStatus} />
+                }
+                <Card className='flex w-full h-full rounded-lg px-32 py-24'>
+                    <GoogleMap
+                        options={{ disableDefaultUI: true }}
+                        zoom={16}
+                        center={center}
+                        mapContainerClassName='w-full'
+                    >
+                        {parkingMap?.map((item) =>
+                            <Marker
+                                icon={{ url: '/parking_pin.svg', scaledSize: new google.maps.Size(64, 64) }}
+                                label={{ text: item.available !== null ? item.available.toString() : "fail", color: 'white', fontWeight: 'bold', className: 'translate-y-[-5px]' }}
+                                position={new google.maps.LatLng(item.lat, item.lng)}
+                                onClick={() => openModal(item)}
+                                key={item.id}
+                            />
+                        )}
+                    </GoogleMap>
+                </Card>
+    
+                {selectedPlace &&
+                    <Modal
+                        open={showReserveModal}
+                        onClose={() => setShowReserveModal(false)}
+                        aria-labelledby="modal-modal-title"
+                        aria-describedby="modal-modal-description"
+                    >
+                        <Box className='flex flex-col gap-16 justify-center absolute top-1/2 left-1/2 w-[400px] translate-x-[-50%] translate-y-[-50%] border-solid bg-light_background_grey p-48 text-black rounded-lg'>
+                            { !isRunning ?
+                                <>
+                                    <h1 className='text-center'>Confirm with <span className='font-bold'>{selectedPlace.name}</span>?</h1>
+                                    <ButtonCV2X label='Reserve' onClick={() => reservePark(selectedPlace.id)} />
+                                    <ButtonCV2X label='Close' onClick={() => setShowReserveModal(false)} color='secondary' />
+                                </> :
+                                <h1 className='text-center'>Location: <span className='font-bold'>{selectedPlace.name}</span></h1>
+                            }
+                        </Box>
+                    </Modal>
+                }
+    
                 <Modal
-                    open={showReserveModal}
-                    onClose={() => setShowReserveModal(false)}
-                    aria-labelledby="modal-modal-title"
-                    aria-describedby="modal-modal-description"
+                    open={showResultModal}
+                    onClose={() => setShowResultModal(false)}
                 >
                     <Box className='flex flex-col gap-16 justify-center absolute top-1/2 left-1/2 w-[400px] translate-x-[-50%] translate-y-[-50%] border-solid bg-light_background_grey p-48 text-black rounded-lg'>
-                        { !isRunning ?
-                            <>
-                                <h1 className='text-center'>Confirm with <span className='font-bold'>{selectedPlace.name}</span>?</h1>
-                                <ButtonCV2X label='Reserve' onClick={() => reservePark(selectedPlace.id)} />
-                                <ButtonCV2X label='Close' onClick={() => setShowReserveModal(false)} color='secondary' />
-                            </> :
-                            <h1 className='text-center'>Location: <span className='font-bold'>{selectedPlace.name}</span></h1>
-                        }
+                        <h1 className='text-center'>Result</h1>
+                        <div>{resultStatus}</div>
+                        <ButtonCV2X label='Close' onClick={() => setShowResultModal(false)} />
                     </Box>
                 </Modal>
-            }
-
-            <Modal
-                open={showResultModal}
-                onClose={() => setShowResultModal(false)}
-            >
-                <Box className='flex flex-col gap-16 justify-center absolute top-1/2 left-1/2 w-[400px] translate-x-[-50%] translate-y-[-50%] border-solid bg-light_background_grey p-48 text-black rounded-lg'>
-                    <h1 className='text-center'>Result</h1>
-                    <div>{resultStatus}</div>
-                    <ButtonCV2X label='Close' onClick={() => setShowResultModal(false)} />
-                </Box>
-            </Modal>
-        </div>
+            </div>
+        </>
+       
     )
 }
 

@@ -9,6 +9,7 @@ import axios from 'axios';
 import ModalCV2X from '@/components/common/ModalCV2X';
 import ModalInputs from '@/components/module/ModalInputs';
 import { InputFieldProp } from '@/types/common/input.model';
+import Navbar from '@/components/Navbar';
 
 interface ParkingSpaceInput {
 	_id?: string;
@@ -150,6 +151,7 @@ export default function Home() {
 
 	return (
 		<>
+			<Navbar />
 			<ModalCV2X
 				title="Add a parking space"
 				variant={BUTTON_LABEL.REGISTER}
@@ -176,7 +178,7 @@ export default function Home() {
 					onDataChange={setUpdateModalData}
 				/>
 			</ModalCV2X>
-			<Stack className="gap-16">
+			<Stack className="gap-16 px-32 mt-16">
 				<PageTitle title={NAVBAR_LABEL.PARKING_SPACES} />
 				<div className="w-72">
 					<ButtonCV2X

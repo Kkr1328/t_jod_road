@@ -2,6 +2,7 @@ import { useRouter } from 'next/navigation';
 
 import { AppBar, Toolbar, Typography, Avatar, Button } from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
+import Link from 'next/link';
 
 export default function Navbar() {
 	const router = useRouter();
@@ -16,10 +17,10 @@ export default function Navbar() {
 	};
 
 	return (
-		<AppBar position="fixed">
+		<AppBar position="static">
 			<Toolbar>
 				<div style={{ flex: 1 }}>
-					<Typography>T-jod-Road</Typography>
+					<Typography><Link href={"/drive_in"}>T-jod-Road</Link></Typography>
 				</div>
 				<Button onClick={handleProfile}>
 					<Avatar />

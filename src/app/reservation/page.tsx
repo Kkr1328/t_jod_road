@@ -1,5 +1,6 @@
 'use client';
 
+import Navbar from '@/components/Navbar';
 import ButtonCV2X from '@/components/common/ButtonCV2X';
 import PageTitle from '@/components/common/PageTitle';
 import { BUTTON_LABEL, NAVBAR_LABEL } from '@/constants/LABEL';
@@ -9,6 +10,7 @@ import { Card, Stack } from '@mui/material';
 export default function Home() {
 	return (
 		<>
+			<Navbar />
 			<Stack className="gap-16">
 				<PageTitle title={NAVBAR_LABEL.RESERVATION} />
 				{MockedReservation.map((reservation) => (
