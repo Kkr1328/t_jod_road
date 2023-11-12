@@ -54,7 +54,7 @@ export default function Home() {
 		setIsSubmit(true);
 		if (!ready) return;
 
-		const API_URL = 'http://localhost:4000/users/update_profile';
+		const API_URL = `${USER_SERVICE_URL}/editProfile`;
 
 		const header = {
 			Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -66,7 +66,7 @@ export default function Home() {
 		};
 
 		const config = {
-			method: 'POST',
+			method: 'PATCH',
 			url: API_URL,
 			headers: header,
 			data: data,

@@ -10,9 +10,10 @@ import ModalCV2X from '@/components/common/ModalCV2X';
 import ModalInputs from '@/components/module/ModalInputs';
 import { InputFieldProp } from '@/types/common/input.model';
 import Navbar from '@/components/Navbar';
+import { PARKING_SERVICE_URL } from '@/services/constant';
 
 interface ParkingSpaceInput {
-	_id?: string;
+	id?: string;
 	lat: string;
 	lng: string;
 	name: string;
@@ -117,7 +118,7 @@ export default function Home() {
 
 	const createParkingSpace = async (newParkingSpace: ParkingSpaceInput) => {
 		await axios
-			.post(`http://localhost:4000/createParkingSpace`, newParkingSpace)
+			.post(`${PARKING_SERVICE_URL}/createParkingSpace`, newParkingSpace)
 			.catch((error) => {
 				console.error('Error deleting parking spaces:', error);
 			});
@@ -127,7 +128,7 @@ export default function Home() {
 	const updateParkingSpace = async (newParkingSpace: ParkingSpaceInput) => {
 		await axios
 			.patch(
-				`http://localhost:4000/updateParkingSpace/${newParkingSpace._id}`,
+				`${PARKING_SERVICE_URL}/updateParkingSpace/${newParkingSpace.id}`,
 				newParkingSpace
 			)
 			.catch((error) => {
@@ -138,7 +139,7 @@ export default function Home() {
 
 	const deleteParkingSpace = async (id: string) => {
 		await axios
-			.delete(`http://localhost:4000/deleteParkingSpace/${id}`)
+			.delete(`${PARKING_SERVICE_URL}/deleteParkingSpace/${id}`)
 			.catch((error) => {
 				console.error('Error deleting parking spaces:', error);
 			});
@@ -206,14 +207,14 @@ export default function Home() {
 								icon={BUTTON_LABEL.UPDATE}
 								label={BUTTON_LABEL.UPDATE}
 								color="primary"
-								onClick={() => handleOpenUpdateModal(parkingSpace._id)}
+								onClick={() => handleOpenUpdateModal(parkingSpace.id)}
 							/>
 							<ButtonCV2X
 								icon={BUTTON_LABEL.DELETE}
 								label={BUTTON_LABEL.DELETE}
 								color="error"
 								variant="outlined"
-								onClick={() => deleteParkingSpace(parkingSpace._id)}
+								onClick={() => deleteParkingSpace(parkingSpace.id)}
 							/>
 						</Stack>
 					</Card>

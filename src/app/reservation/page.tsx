@@ -11,7 +11,7 @@ export default function Home() {
 	return (
 		<>
 			<Navbar />
-			<Stack className="gap-16">
+			<Stack className="gap-16 px-32 mt-16">
 				<PageTitle title={NAVBAR_LABEL.RESERVATION} />
 				{MockedReservation.map((reservation) => (
 					<Card className="w-full rounded-lg px-32 py-24">

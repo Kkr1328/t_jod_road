@@ -7,6 +7,7 @@ import { TextField, Button, Typography, Link, Grid } from '@mui/material';
 
 import AuthLayout from '@/components/AuthLayout';
 import PasswordTextField from '@/components/PasswordTextField';
+import { USER_SERVICE_URL } from '@/services/constant';
 
 export default function Home() {
 	const router = useRouter();
@@ -27,7 +28,7 @@ export default function Home() {
 		}
 
 		try {
-			const response = await axios.post('http://localhost:5346/user-service/login', { username, password });
+			const response = await axios.post(`${USER_SERVICE_URL}/login`, { username, password });
 			const token = response.data.access_token;
 
 			localStorage.setItem('token', token);
