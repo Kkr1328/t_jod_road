@@ -1,7 +1,7 @@
 import axios from "axios";
 import { USER_SERVICE_URL } from "./constant";
 
-const getProfile = async (): Promise<Number> => {
+const getProfile = async () => {
     const url = `${USER_SERVICE_URL}/getProfile`
 
     const config = {
@@ -9,12 +9,10 @@ const getProfile = async (): Promise<Number> => {
             'Authorization': 'Bearer ' + localStorage.getItem('token') 
         }
     }
-    const userId = await axios
-        .get(url, config)
-        .then((res) => {
-            return res.data.id
-        })
-    return userId
+    return await axios.get(url, config)
+                .then((res) => {
+                    return res.data
+                })
 }
 
 const getPenaltyStatus = async (callback: (data: any) => void) => {

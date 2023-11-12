@@ -3,9 +3,12 @@ import { useRouter } from 'next/navigation';
 import { AppBar, Toolbar, Typography, Avatar, Button } from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { getProfile } from '@/services/user';
 
 export default function Navbar() {
 	const router = useRouter();
+	const [isAdmin, setIsAdmin] = useState(false)
 
 	const handleProfile = () => {
 		router.push('/profile');
@@ -16,11 +19,29 @@ export default function Navbar() {
 		router.push('/login');
 	};
 
+	useEffect(() => {
+		getProfile()
+			.then(e => e.id)
+			.then(id => setIsAdmin(id === 1 ? true : false))
+	},[])
+
 	return (
 		<AppBar position="static">
 			<Toolbar>
 				<div style={{ flex: 1 }}>
-					<Typography><Link href={"/drive_in"}>T-jod-Road</Link></Typography>
+					<Typography fontSize={32} fontWeight={"bold"}><Link href={"/drive_in"}>T-jod-Road</Link></Typography>
+				</div>
+				<div className='flex gap-48 mr-48'>
+					{ !isAdmin ?
+						<>
+							<li className='list-none'><Link href={"/drive_in"}>Drive In</Link></li>
+							<li className='list-none'><Link href={"/review"}>Review</Link></li>
+						</>:
+						<>
+							<li className='list-none'><Link href={"/parking_space"}>Manage Parking</Link></li>
+							<li className='list-none'><Link href={"/reservation"}>Manage Reservation</Link></li>
+						</>
+					}
 				</div>
 				<Button onClick={handleProfile}>
 					<Avatar />
