@@ -13,6 +13,10 @@ export default function Header() {
 	const authContext = useContext(AuthContext);
 	const { logout } = authContext;
 
+	const handleHome = () => {
+		router.push('/drive_in');
+	};
+
 	const handleProfile = () => {
 		router.push('/profile');
 	};
@@ -24,7 +28,11 @@ export default function Header() {
 	return (
 		<AppBar className="z-20 fixed">
 			<Toolbar>
-				<Image src="/next.svg" alt="5G-V2X logo" width={160} height={40} />
+				<div style={{ flex: 1 }}>
+					<Button onClick={handleHome}>
+						<Typography>T-jod-Road</Typography>
+					</Button>
+				</div>
 				<div className="grow" />
 				<Button onClick={handleProfile}>
 					<Avatar />
