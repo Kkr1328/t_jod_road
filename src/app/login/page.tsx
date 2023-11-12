@@ -27,7 +27,7 @@ export default function Home() {
 		}
 
 		try {
-			const response = await axios.post('http://localhost:4000/auth/login', { username, password });
+			const response = await axios.post('http://localhost:5346/user-service/login', { username, password });
 			const token = response.data.access_token;
 
 			localStorage.setItem('token', token);
