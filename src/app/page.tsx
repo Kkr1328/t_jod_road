@@ -49,7 +49,7 @@ export default function DriveIN() {
       } = useTimer({ expiryTimestamp, autoStart: false, onExpire: () => console.log(`time out`) });
 
     useEffect(() => {
-        getIsUserAdmin().then(isAdmin => { if(isAdmin) nav_router.push('/reservation') })
+        getIsUserAdmin().then(isAdmin => { if(isAdmin) nav_router.push('/parking_space') })
         getPenaltyStatus((data) => setPenaltyStatus(data))
 
         const strRq = new ParkingSpaceList();
