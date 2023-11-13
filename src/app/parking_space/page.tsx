@@ -12,6 +12,7 @@ import { InputFieldProp } from '@/types/common/input.model';
 import Navbar from '@/components/Navbar';
 import { PARKING_SERVICE_URL } from '@/services/constant';
 import { useRouter } from 'next/navigation';
+import { getIsUserAdmin } from '@/services/user';
 
 interface ParkingSpaceInput {
 	id?: string;
@@ -154,7 +155,14 @@ export default function Home() {
 	};
 
 	useEffect(() => {
-		getParkingSpaces();
+		getIsUserAdmin()
+			.then((isAdmin) => {
+				if(!isAdmin) { 
+					router.push('/') 
+				} else {
+					getParkingSpaces()
+				}
+			})
 	}, []);
 
 	return (
