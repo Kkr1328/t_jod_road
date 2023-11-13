@@ -7,6 +7,7 @@ import { Card, Stack } from '@mui/material';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { AMQPWebSocketClient } from '@cloudamqp/amqp-client';
+import ReservationCard from '@/components/common/ReservationCard';
 
 export default function Home({
 	params,
@@ -48,6 +49,7 @@ export default function Home({
 							timeLeft: Math.floor(
 								((reservation.lateAt - new Date().getTime()) / (1000 * 60)) % 60
 							),
+							lateAt: reservation.lateAt,
 							confirmed: reservation.confirmed,
 						};
 					})
@@ -79,23 +81,15 @@ export default function Home({
 					.filter(
 						(reservation) => !reservation.confirmed && reservation.timeLeft > 0
 					)
-					.map((reservation, index) => (
-						<Card key={index} className="w-full rounded-lg px-32 py-24">
-							<Stack direction="row" className="gap-16">
-								<Stack>
-									<p>{`Reservation Id : ${reservation.id}`}</p>
-									<p>{`Reserved by userId : ${reservation.userId}`}</p>
-									<p>{`Time left : ${reservation.timeLeft} minutes`}</p>
-								</Stack>
-								<div className="grow" />
-								<ButtonCV2X
-									icon={BUTTON_LABEL.APPROVE}
-									label={BUTTON_LABEL.APPROVE}
-									color="accept"
-									onClick={() => confirmReservation(reservation.id)}
-								/>
-							</Stack>
-						</Card>
+					.map((reservation, _index) => (
+						<ReservationCard 
+							reservation={{
+								id: reservation.id,
+								userId: reservation.userId,
+								lateAt: reservation.lateAt
+							}}
+							onClick={() => confirmReservation(reservation.id)}
+						/>
 					))}
 			</Stack>
 		</>
