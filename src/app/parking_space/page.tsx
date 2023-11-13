@@ -103,7 +103,7 @@ export default function Home() {
 
 	const getParkingSpaces = async () => {
 		await axios
-			.get(`http://localhost:4000/getParkingSpaces`)
+			.get(`${PARKING_SERVICE_URL}/getParkingSpaces`)
 			.then((response) => {
 				setParkingSpaces(response.data);
 			})
@@ -114,7 +114,7 @@ export default function Home() {
 
 	const getParkingSpace = async (id: string) => {
 		await axios
-			.get(`http://localhost:4000/getParkingSpace/${id}`)
+			.get(`${PARKING_SERVICE_URL}/getParkingSpace/${id}`)
 			.then((response) => {
 				setUpdateModalData(response.data);
 			})

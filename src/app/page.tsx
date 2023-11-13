@@ -24,6 +24,8 @@ import { ParkingSpaceList } from '@/proto/parking-space_pb'
 import router from 'next/router';
 import Navbar from '@/components/Navbar';
 import { useRouter } from 'next/navigation';
+import ReviewAlert from '@/components/common/ReviewAlert';
+import { AMQPWebSocketClient } from '@cloudamqp/amqp-client';
 
 const center = {
     lat: 13.738329190226818,
@@ -37,6 +39,7 @@ export default function DriveIN() {
     const [showReserveModal, setShowReserveModal] = useState<boolean>(false)
     const [resultStatus, setResultStatus] = useState<string>()
     const [showResultModal, setShowResultModal] = useState<boolean>(false)
+    const [recommendReview, setRecommendReview] = useState()
     const nav_router = useRouter()
 
     const expiryTimestamp = new Date()
@@ -48,9 +51,27 @@ export default function DriveIN() {
         restart,
       } = useTimer({ expiryTimestamp, autoStart: false, onExpire: () => console.log(`time out`) });
 
+    function fetchRecommendReview() {
+        const fetchData = async () => {
+			const url = 'ws://localhost:15670/ws/amqp';
+			const amqp = new AMQPWebSocketClient(url, '/', 'guest', 'guest');
+			const conn = await amqp.connect();
+			const ch = await conn.channel();
+			await ch.queueDeclare("params.parking_space_id", {
+				durable: false,
+			});
+			await ch.basicConsume("params.parking_space_id", {}, () => {
+				// setRecommendReview()
+			});
+		};
+		fetchData();
+		console.log("params.parking_space_id");
+    }
+
     useEffect(() => {
         getIsUserAdmin().then(isAdmin => { if(isAdmin) nav_router.push('/parking_space') })
         getPenaltyStatus((data) => setPenaltyStatus(data))
+        // fetchRecommendReview()
 
         const strRq = new ParkingSpaceList();
         const client = new GetAvailableSpacesServiceClient('http://localhost:8080/', null, null)
@@ -119,6 +140,7 @@ export default function DriveIN() {
             <Navbar />
             <div className='h-[80dvh] flex flex-col gap-12 text-black px-32 mt-16'>
                 <PageTitle title={NAVBAR_LABEL.CUSTOMERS_RESERVATION} />
+                <ReviewAlert />
                 { isRunning ?
                     <div className='text-center text-h2 text-active_green'>{minutes}m {seconds}s left</div> :
                     <PenaltyBadge props={penaltyStatus} />
