@@ -32,7 +32,7 @@ export default function Navbar() {
 		<AppBar position="static">
 			<Toolbar>
 				<div style={{ flex: 1 }}>
-					<Typography fontSize={32} fontWeight={"bold"}><Link href={"/"}>T-jod-Road</Link></Typography>
+					<Typography fontSize={32} fontWeight={"bold"}><Link href={isAdmin ? "/parking_space" : "/"}>T-jod-Road</Link></Typography>
 				</div>
 				<div className='flex gap-48 mr-48'>
 					{ !isAdmin ?
@@ -41,8 +41,7 @@ export default function Navbar() {
 							<li className='list-none'><Link href={"/review"}>Review</Link></li>
 						</>:
 						<>
-							<li className='list-none'><Link href={"/reservation"}>Manage Reservation</Link></li>
-							<li className='list-none'><Link href={"/parking_space"}>Manage Parking</Link></li>
+							<li className='list-none'><Link href={"/parking_space"}>Parking</Link></li>
 						</>
 					}
 				</div>

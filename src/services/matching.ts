@@ -25,7 +25,6 @@ const getActiveReservationsByUser = async () => {
     const url= `${RESERVATION_SERVICE_URL}/getActiveReservationsByUser`
     try {
         const userInfo = await getProfile()
-        console.log(userInfo)
         const userId = userInfo.id
         const response = await axios.get(url + `/${userId}`);
         return { success: true, data: response.data };

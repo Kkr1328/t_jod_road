@@ -11,6 +11,7 @@ import ModalInputs from '@/components/module/ModalInputs';
 import { InputFieldProp } from '@/types/common/input.model';
 import Navbar from '@/components/Navbar';
 import { PARKING_SERVICE_URL } from '@/services/constant';
+import { useRouter } from 'next/navigation';
 
 interface ParkingSpaceInput {
 	id?: string;
@@ -57,6 +58,8 @@ export default function Home() {
 	const [openRegisterModal, setOpenRegisterModal] = useState<boolean>(false);
 	const [openUpdateModal, setOpenUpdateModal] = useState<boolean>(false);
 
+	const router = useRouter()
+
 	const defaultData = ParkingSpaceTemplate.reduce(
 		(acc, item) => ({
 			...acc,
@@ -93,6 +96,10 @@ export default function Home() {
 		updateParkingSpace(updateModalData);
 		handleCloseUpdateModal();
 	};
+
+	const routeToReservation = (parkingId: string) => {
+		router.push(`/reservation/${parkingId}`)
+	}
 
 	const getParkingSpaces = async () => {
 		await axios
@@ -203,6 +210,12 @@ export default function Home() {
 								<p>{`Available parking lots : ${parkingSpace.available}`}</p>
 							</Stack>
 							<div className="grow" />
+							<ButtonCV2X
+								icon={BUTTON_LABEL.SEARCH}
+								label={"Reservation"}
+								color="accept"
+								onClick={() => routeToReservation(parkingSpace.id)}
+							/>
 							<ButtonCV2X
 								icon={BUTTON_LABEL.UPDATE}
 								label={BUTTON_LABEL.UPDATE}

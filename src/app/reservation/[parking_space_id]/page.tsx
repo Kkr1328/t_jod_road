@@ -7,6 +7,7 @@ import { Card, Stack } from '@mui/material';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { AMQPWebSocketClient } from '@cloudamqp/amqp-client';
+import Navbar from '@/components/Navbar';
 
 export default function Home({
 	params,
@@ -73,7 +74,8 @@ export default function Home({
 
 	return (
 		<>
-			<Stack className="gap-16">
+			<Navbar />
+			<Stack className="gap-16 px-32 mt-16">
 				<PageTitle title={NAVBAR_LABEL.RESERVATION} />
 				{reservations
 					.filter(
