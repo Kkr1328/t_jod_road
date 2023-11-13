@@ -8,6 +8,7 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { AMQPWebSocketClient } from '@cloudamqp/amqp-client';
 import Navbar from '@/components/Navbar';
+import { RESERVATION_SERVICE_URL } from '@/services/constant';
 
 export default function Home({
 	params,
@@ -36,7 +37,7 @@ export default function Home({
 	const getReservations = async () => {
 		await axios
 			.get(
-				`http://localhost:9000/getReservations/${
+				`${RESERVATION_SERVICE_URL}/getReservations/${
 					params.parking_space_id as string
 				}`
 			)
@@ -61,7 +62,7 @@ export default function Home({
 
 	const confirmReservation = async (id: string) => {
 		await axios
-			.post(`http://localhost:9000/confirmReservation/${id}`)
+			.post(`${RESERVATION_SERVICE_URL}/confirmReservation/${id}`)
 			.then(getReservations)
 			.catch((error) => {
 				console.error('Error fetching parking spaces:', error);
