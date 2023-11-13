@@ -8,7 +8,7 @@ import { getProfile } from '@/services/user';
 
 export default function Navbar() {
 	const router = useRouter();
-	const [isAdmin, setIsAdmin] = useState(false)
+	const [isAdmin, setIsAdmin] = useState<boolean | null>(null)
 
 	const handleProfile = () => {
 		router.push('/profile');
@@ -35,14 +35,18 @@ export default function Navbar() {
 					<Typography fontSize={32} fontWeight={"bold"}><Link href={isAdmin ? "/parking_space" : "/"}>T-jod-Road</Link></Typography>
 				</div>
 				<div className='flex gap-48 mr-48'>
-					{ !isAdmin ?
-						<>
-							<li className='list-none'><Link href={"/"}>Drive In</Link></li>
-							<li className='list-none'><Link href={"/review"}>Review</Link></li>
-						</>:
-						<>
-							<li className='list-none'><Link href={"/parking_space"}>Parking</Link></li>
-						</>
+					{ isAdmin !== null ?
+							!isAdmin ?
+								<>
+									<li className='list-none'><Link href={"/"}>Drive In</Link></li>
+									<li className='list-none'><Link href={"/review"}>Review</Link></li>
+								</>
+								:
+								<>
+									<li className='list-none'><Link href={"/parking_space"}>Parking</Link></li>
+								</>
+						:
+						<></>	
 					}
 				</div>
 				<Button onClick={handleProfile}>
