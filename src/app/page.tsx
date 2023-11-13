@@ -37,7 +37,7 @@ export default function DriveIN() {
     const [selectedPlace, setSelectedPlace] = useState<SpaceParking>()
     const [penaltyStatus, setPenaltyStatus] = useState<PenaltyStatus | null>(null)
     const [showReserveModal, setShowReserveModal] = useState<boolean>(false)
-    const [resultStatus, setResultStatus] = useState<string>()
+    const [resultStatus, setResultStatus] = useState<[String, String]>(["",""])
     const [showResultModal, setShowResultModal] = useState<boolean>(false)
     const [recommendReview, setRecommendReview] = useState()
     const nav_router = useRouter()
@@ -50,6 +50,21 @@ export default function DriveIN() {
         isRunning,
         restart,
       } = useTimer({ expiryTimestamp, autoStart: false, onExpire: () => console.log(`time out`) });
+
+    function getAvailableSpaces() {
+        const strRq = new ParkingSpaceList();
+        const client = new GetAvailableSpacesServiceClient('http://localhost:8080/', null, null)
+        const stream = client.getAvailableSpaces(strRq, {})
+
+        stream.on('data', (res: any) => {
+            const data: SpaceParking[] = gRPCMapping(res.array)
+            setParkingMap(data)
+        })
+
+        router.events.on('routeChangeStart', (url, { shallow }) => {
+            stream.cancel()
+        });
+    }
 
     function fetchRecommendReview() {
         const fetchData = async () => {
@@ -69,32 +84,25 @@ export default function DriveIN() {
     }
 
     useEffect(() => {
-        getIsUserAdmin().then(isAdmin => { if(isAdmin) nav_router.push('/parking_space') })
-        getPenaltyStatus((data) => setPenaltyStatus(data))
-        // fetchRecommendReview()
+        const fetchData = async () => {
+            const isAdmin = await getIsUserAdmin()
+            if(isAdmin) { nav_router.push('/parking_space') }
+            getPenaltyStatus((data) => setPenaltyStatus(data))
+            // fetchRecommendReview()
 
-        const strRq = new ParkingSpaceList();
-        const client = new GetAvailableSpacesServiceClient('http://localhost:8080/', null, null)
-        const stream = client.getAvailableSpaces(strRq, {})
+            getAvailableSpaces()
 
-        stream.on('data', (res: any) => {
-            const data: SpaceParking[] = gRPCMapping(res.array)
-            setParkingMap(data)
-        })
-
-        router.events.on('routeChangeStart', (url, { shallow }) => {
-            stream.cancel()
-        });
-
-        const activate = getActiveReservationsByUser()
-        activate
-            .then(e => e.data)
-            .then(e => {
-                if(e.length > 0) {
-                    const d = new Date(e[e.length - 1].lateAt)
-                    restart(d)
-                }
-            })
+            const activate = getActiveReservationsByUser()
+            activate
+                .then(e => e.data)
+                .then(e => {
+                    if(e.length > 0) {
+                        const d = new Date(e[e.length - 1].lateAt)
+                        restart(d)
+                    }
+                })
+        }
+        fetchData()
     }, [])
 
     useEffect(() => {
@@ -113,7 +121,7 @@ export default function DriveIN() {
         createReservation(id)
             .then(e => {
                 if (e.success) {
-                    setResultStatus(`reserve complete: please checkin within 30min`)
+                    setResultStatus(["Reserve Complete",`Please check-in within 30min`])
                     const time = new Date();
                     time.setSeconds(time.getSeconds() + 1800); // 30 minutes timer
                     restart(time)
@@ -122,7 +130,7 @@ export default function DriveIN() {
                 }
             })
             .catch((e) => {
-                setResultStatus(`fail to reserve ${e}`)
+                setResultStatus([`Fail to reserve`, e])
             })
             .finally(() => {
                 setShowReserveModal(false)
@@ -189,8 +197,8 @@ export default function DriveIN() {
                     onClose={() => setShowResultModal(false)}
                 >
                     <Box className='flex flex-col gap-16 justify-center absolute top-1/2 left-1/2 w-[400px] translate-x-[-50%] translate-y-[-50%] border-solid bg-light_background_grey p-48 text-black rounded-lg'>
-                        <h1 className='text-center'>Result</h1>
-                        <div>{resultStatus}</div>
+                        <h1 className='text-center font-bold'>{resultStatus[0]}</h1>
+                        <div className=''>{resultStatus[1]}</div>
                         <ButtonCV2X label='Close' onClick={() => setShowResultModal(false)} />
                     </Box>
                 </Modal>
