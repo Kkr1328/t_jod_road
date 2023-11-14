@@ -1,9 +1,8 @@
 'use client';
 
-import ButtonCV2X from '@/components/common/ButtonCV2X';
 import PageTitle from '@/components/common/PageTitle';
-import { BUTTON_LABEL, NAVBAR_LABEL } from '@/constants/LABEL';
-import { Card, Stack } from '@mui/material';
+import { NAVBAR_LABEL } from '@/constants/LABEL';
+import { Stack } from '@mui/material';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { AMQPWebSocketClient } from '@cloudamqp/amqp-client';
@@ -11,6 +10,7 @@ import Navbar from '@/components/Navbar';
 import { RESERVATION_SERVICE_URL } from '@/services/constant';
 import { getIsUserAdmin } from '@/services/user';
 import { useRouter } from 'next/navigation';
+import ReservationCard from '@/components/common/ReservationCard';
 
 export default function Home({
 	params,
@@ -18,7 +18,7 @@ export default function Home({
 	params: { parking_space_id: string };
 }) {
 	const [reservations, setReservations] = useState<any[]>([]);
-	const router = useRouter()
+	const router = useRouter();
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -33,15 +33,14 @@ export default function Home({
 				getReservations();
 			});
 		};
-		getIsUserAdmin()
-			.then(isAdmin => {
-				if(isAdmin) {
-					fetchData();
-					console.log(params.parking_space_id as string);
-				} else {
-					router.push('/')
-				}
-			})
+		getIsUserAdmin().then((isAdmin) => {
+			if (isAdmin) {
+				fetchData();
+				console.log(params.parking_space_id as string);
+			} else {
+				router.push('/');
+			}
+		});
 	}, []);
 
 	const getReservations = async () => {
@@ -60,6 +59,7 @@ export default function Home({
 							timeLeft: Math.floor(
 								((reservation.lateAt - new Date().getTime()) / (1000 * 60)) % 60
 							),
+							lateAt: reservation.lateAt,
 							confirmed: reservation.confirmed,
 						};
 					})
@@ -93,22 +93,15 @@ export default function Home({
 						(reservation) => !reservation.confirmed && reservation.timeLeft > 0
 					)
 					.map((reservation, index) => (
-						<Card key={index} className="w-full rounded-lg px-32 py-24">
-							<Stack direction="row" className="gap-16">
-								<Stack>
-									<p>{`Reservation Id : ${reservation.id}`}</p>
-									<p>{`Reserved by userId : ${reservation.userId}`}</p>
-									<p>{`Time left : ${reservation.timeLeft} minutes`}</p>
-								</Stack>
-								<div className="grow" />
-								<ButtonCV2X
-									icon={BUTTON_LABEL.APPROVE}
-									label={BUTTON_LABEL.APPROVE}
-									color="accept"
-									onClick={() => confirmReservation(reservation.id)}
-								/>
-							</Stack>
-						</Card>
+						<ReservationCard
+							key={index}
+							reservation={{
+								id: reservation.id,
+								userId: reservation.userId,
+								lateAt: reservation.lateAt,
+							}}
+							onClick={() => confirmReservation(reservation.id)}
+						/>
 					))}
 			</Stack>
 		</>
