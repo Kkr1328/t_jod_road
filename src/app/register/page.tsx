@@ -12,6 +12,7 @@ import {
 	validatePassword,
 } from '@/utilities/validation';
 import { validation } from '@/types/Validation';
+import AuthLayout from '@/components/AuthLayout';
 import PasswordTextField from '@/components/PasswordTextField';
 import { USER_SERVICE_URL } from '@/services/constant';
 
@@ -62,52 +63,54 @@ export default function Home() {
 
 	return (
 		<>
-			<Typography align="center" component="h1" variant="h5">
-				Sign Up
-			</Typography>
-			<TextField
-				label="Email"
-				error={isSubmit && emailErr.err}
-				helperText={isSubmit && emailErr.msg}
-				placeholder="Email"
-				variant="outlined"
-				value={email}
-				onChange={(e) => setEmail(e.target.value)}
-			/>
-			<TextField
-				label="Username"
-				error={isSubmit && usernameErr.err}
-				helperText={isSubmit && usernameErr.msg}
-				placeholder="Username"
-				variant="outlined"
-				value={username}
-				onChange={(e) => setUsername(e.target.value)}
-			/>
-			<PasswordTextField
-				label="Password"
-				error={isSubmit && passwordErr.err}
-				errorMsg={isSubmit ? passwordErr.msg : ''}
-				placeholder="Password"
-				value={password}
-				onChange={handlePasswordChange}
-			/>
-			<PasswordTextField
-				label="Confirm Password"
-				error={isSubmit && confirmPasswordErr.err}
-				errorMsg={isSubmit ? confirmPasswordErr.msg : ''}
-				placeholder="Confirm Password"
-				value={confirmPassword}
-				onChange={handleConfirmPasswordChange}
-			/>
-			<Button
-				variant="contained"
-				onClick={handleRegister}
-				fullWidth
-				sx={{ mt: 3, mb: 2, backgroundColor: '#1565c0 !important' }}
-			>
-				SIGN UP
-			</Button>
-			{error && <Typography color="#f44336">{error}</Typography>}
+			<AuthLayout>
+				<Typography align="center" component="h1" variant="h5">
+					Sign Up
+				</Typography>
+				<TextField
+					label="Email"
+					error={isSubmit && emailErr.err}
+					helperText={isSubmit && emailErr.msg}
+					placeholder="Email"
+					variant="outlined"
+					value={email}
+					onChange={(e) => setEmail(e.target.value)}
+				/>
+				<TextField
+					label="Username"
+					error={isSubmit && usernameErr.err}
+					helperText={isSubmit && usernameErr.msg}
+					placeholder="Username"
+					variant="outlined"
+					value={username}
+					onChange={(e) => setUsername(e.target.value)}
+				/>
+				<PasswordTextField
+					label="Password"
+					error={isSubmit && passwordErr.err}
+					errorMsg={isSubmit ? passwordErr.msg : ''}
+					placeholder="Password"
+					value={password}
+					onChange={handlePasswordChange}
+				/>
+				<PasswordTextField
+					label="Confirm Password"
+					error={isSubmit && confirmPasswordErr.err}
+					errorMsg={isSubmit ? confirmPasswordErr.msg : ''}
+					placeholder="Confirm Password"
+					value={confirmPassword}
+					onChange={handleConfirmPasswordChange}
+				/>
+				<Button
+					variant="contained"
+					onClick={handleRegister}
+					fullWidth
+					sx={{ mt: 3, mb: 2, backgroundColor: '#1565c0 !important' }}
+				>
+					SIGN UP
+				</Button>
+				{error && <Typography color="#f44336">{error}</Typography>}
+			</AuthLayout>
 		</>
 	);
 }
