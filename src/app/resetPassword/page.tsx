@@ -11,7 +11,6 @@ import {
 	validateConfirmNewPassword,
 } from '@/utilities/validation';
 import { validation } from '@/types/Validation';
-import AuthLayout from '@/components/AuthLayout';
 import PasswordTextField from '@/components/PasswordTextField';
 import { USER_SERVICE_URL } from '@/services/constant';
 
@@ -97,44 +96,42 @@ export default function Home() {
 
 	return (
 		<>
-			<AuthLayout>
-				<Typography align="center" component="h1" variant="h5">
-					Reset Password
-				</Typography>
-				<TextField
-					label="Email"
-					error={error.email}
-					helperText={errorMsg.email}
-					placeholder="Email"
-					variant="outlined"
-					value={email}
-					onChange={(e) => setEmail(e.target.value)}
-				/>
-				<PasswordTextField
-					label="New Password"
-					error={error.newPassword}
-					errorMsg={errorMsg.newPassword}
-					placeholder="New Password"
-					value={newPassword}
-					onChange={handleNewPasswordChange}
-				/>
-				<PasswordTextField
-					label="Confirm New Password"
-					error={error.confirmNewPassword}
-					errorMsg={errorMsg.confirmNewPassword}
-					placeholder="Confirm New Password"
-					value={confirmNewPassword}
-					onChange={handleConfirmNewPasswordChange}
-				/>
-				<Button
-					variant="contained"
-					onClick={handleResetPassword}
-					fullWidth
-					sx={{ mt: 3, mb: 2, backgroundColor: '#1565c0 !important' }}
-				>
-					RESET PASSWORD
-				</Button>
-			</AuthLayout>
+			<Typography align="center" component="h1" variant="h5">
+				Reset Password
+			</Typography>
+			<TextField
+				label="Email"
+				error={error.email}
+				helperText={errorMsg.email}
+				placeholder="Email"
+				variant="outlined"
+				value={email}
+				onChange={(e) => setEmail(e.target.value)}
+			/>
+			<PasswordTextField
+				label="New Password"
+				error={error.newPassword}
+				errorMsg={errorMsg.newPassword}
+				placeholder="New Password"
+				value={newPassword}
+				onChange={handleNewPasswordChange}
+			/>
+			<PasswordTextField
+				label="Confirm New Password"
+				error={error.confirmNewPassword}
+				errorMsg={errorMsg.confirmNewPassword}
+				placeholder="Confirm New Password"
+				value={confirmNewPassword}
+				onChange={handleConfirmNewPasswordChange}
+			/>
+			<Button
+				variant="contained"
+				onClick={handleResetPassword}
+				fullWidth
+				sx={{ mt: 3, mb: 2, backgroundColor: '#1565c0 !important' }}
+			>
+				RESET PASSWORD
+			</Button>
 		</>
 	);
 }
