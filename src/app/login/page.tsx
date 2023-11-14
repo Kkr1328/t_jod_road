@@ -38,7 +38,7 @@ export default function Home() {
 				},
 			};
 			setAuthState(userAuthInfo);
-			router.push('/drive_in');
+			router.push('/');
 		} catch (error) {
 			console.log(error);
 			setError('Wrong username or password. Please try again.');
