@@ -11,6 +11,7 @@ import { RESERVATION_SERVICE_URL } from '@/services/constant';
 import { getIsUserAdmin } from '@/services/user';
 import { useRouter } from 'next/navigation';
 import ReservationCard from '@/components/common/ReservationCard';
+import NoData from '@/components/common/NoData';
 
 export default function Home({
 	params,
@@ -88,21 +89,25 @@ export default function Home({
 			<Navbar />
 			<Stack className="gap-16 px-32 mt-16">
 				<PageTitle title={NAVBAR_LABEL.RESERVATION} />
-				{reservations
-					.filter(
-						(reservation) => !reservation.confirmed && reservation.timeLeft > 0
-					)
-					.map((reservation, index) => (
-						<ReservationCard
-							key={index}
-							reservation={{
-								id: reservation.id,
-								userId: reservation.userId,
-								lateAt: reservation.lateAt,
-							}}
-							onClick={() => confirmReservation(reservation.id)}
-						/>
-					))}
+				{reservations.length > 0 ?
+					reservations
+						.filter(
+							(reservation) => !reservation.confirmed && reservation.timeLeft > 0
+						)
+						.map((reservation, index) => (
+							<ReservationCard
+								key={index}
+								reservation={{
+									id: reservation.id,
+									userId: reservation.userId,
+									lateAt: reservation.lateAt,
+								}}
+								onClick={() => confirmReservation(reservation.id)}
+							/>
+						))
+					:
+					<div className='mt-[236px]'><NoData size='large' /></div>
+				}
 			</Stack>
 		</>
 	);
