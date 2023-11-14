@@ -8,6 +8,7 @@ import ButtonCV2X from '@/components/common/ButtonCV2X';
 import React from 'react';
 import axios from 'axios';
 import { AuthContext } from '@/context/auth-context';
+import { REVIEW_SERVICE_URL, PARKING_SERVICE_URL } from '@/services/constant';
 
 export default function Home({params,}: {
 	params: { id: string };
@@ -15,9 +16,9 @@ export default function Home({params,}: {
 
     const [message, setMessage] = useState<string>('');
     const [isSubmit, setIsSubmit] = useState<boolean>(false);
-    const [parkingSpaceName, setParkingSpceName] = useState<string>('');
+    const [parkingSpaceName, setParkingSpaceName] = useState<string>('');
     const authContext = useContext(AuthContext);
-    console.log(authContext.authState.token)
+
     const handleSubmit = async () => {
       setIsSubmit(true);
   
@@ -26,11 +27,10 @@ export default function Home({params,}: {
       }
   
       try {
-        const response = await axios.post(`http://localhost:6000/createReview/${params.id as string}`, {
-
+        const response = await axios.post(`${REVIEW_SERVICE_URL}/createReview/${params.id as string}`, {
           message,
         },{headers:{
-          Authorization:authContext.authState.token
+          Authorization: authContext.authState.token
         }});
       } catch (error) {
         console.error('Submit failed:', error);
@@ -39,19 +39,20 @@ export default function Home({params,}: {
       setIsSubmit(false);
     };
 
+    const getParkingSpaceName = async () => {
+      await axios
+      .get(
+          `${PARKING_SERVICE_URL}/getParkingSpace/${params.id as string}`
+      )
+      .then((response) => {
+        setParkingSpaceName(response.data["name"])
+      })
+      .catch((error) => {
+          console.error('Error fetching parkingSpaceName:', error);
+      });
+    }
+
     useEffect(() => {
-      const getParkingSpaceName = async () => {
-        await axios
-        .get(
-            `http://localhost:4000/getParkingSpace/${params.id as string}`
-        )
-        .then((response) => {
-          setParkingSpceName(response.data["name"])
-        })
-        .catch((error) => {
-            console.error('Error fetching parkingSpaceName:', error);
-        });
-      }
       getParkingSpaceName();
     }, []);
 
