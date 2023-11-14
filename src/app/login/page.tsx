@@ -7,6 +7,7 @@ import { TextField, Button, Typography, Link, Grid } from '@mui/material';
 
 import AuthLayout from '@/components/AuthLayout';
 import PasswordTextField from '@/components/PasswordTextField';
+import { USER_SERVICE_URL } from '@/services/constant';
 
 export default function Home() {
 	const router = useRouter();
@@ -27,12 +28,12 @@ export default function Home() {
 		}
 
 		try {
-			const response = await axios.post('http://localhost:4000/auth/login', { username, password });
+			const response = await axios.post(`${USER_SERVICE_URL}/login`, { username, password });
 			const token = response.data.access_token;
 
 			localStorage.setItem('token', token);
 
-			router.push('/drive_in');
+			router.push('/');
 		} catch (error) {
 			console.log(error);
 			setError('Wrong username or password. Please try again.');
@@ -68,7 +69,7 @@ export default function Home() {
 				>
 					LOGIN
 				</Button>
-				<Grid container>
+				<div className='flex flex-col'>
 					<Grid item xs>
 						<Link href="/resetPassword" variant="body2">
 							Forgot Password?
@@ -79,7 +80,7 @@ export default function Home() {
 							New Here? Sign Up
 						</Link>
 					</Grid>
-				</Grid>
+				</div>
 				{error && (
 					<Typography color="#f44336" variant="body2">
 						{error}

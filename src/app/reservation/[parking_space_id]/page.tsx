@@ -7,6 +7,10 @@ import { Card, Stack } from '@mui/material';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { AMQPWebSocketClient } from '@cloudamqp/amqp-client';
+import Navbar from '@/components/Navbar';
+import { RESERVATION_SERVICE_URL } from '@/services/constant';
+import { getIsUserAdmin } from '@/services/user';
+import { useRouter } from 'next/navigation';
 
 export default function Home({
 	params,
@@ -14,6 +18,7 @@ export default function Home({
 	params: { parking_space_id: string };
 }) {
 	const [reservations, setReservations] = useState<any[]>([]);
+	const router = useRouter()
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -28,14 +33,21 @@ export default function Home({
 				getReservations();
 			});
 		};
-		fetchData();
-		console.log(params.parking_space_id as string);
+		getIsUserAdmin()
+			.then(isAdmin => {
+				if(isAdmin) {
+					fetchData();
+					console.log(params.parking_space_id as string);
+				} else {
+					router.push('/')
+				}
+			})
 	}, []);
 
 	const getReservations = async () => {
 		await axios
 			.get(
-				`http://localhost:9000/getReservations/${
+				`${RESERVATION_SERVICE_URL}/getReservations/${
 					params.parking_space_id as string
 				}`
 			)
@@ -60,7 +72,7 @@ export default function Home({
 
 	const confirmReservation = async (id: string) => {
 		await axios
-			.post(`http://localhost:9000/confirmReservation/${id}`)
+			.post(`${RESERVATION_SERVICE_URL}/confirmReservation/${id}`)
 			.then(getReservations)
 			.catch((error) => {
 				console.error('Error fetching parking spaces:', error);
@@ -73,7 +85,8 @@ export default function Home({
 
 	return (
 		<>
-			<Stack className="gap-16">
+			<Navbar />
+			<Stack className="gap-16 px-32 mt-16">
 				<PageTitle title={NAVBAR_LABEL.RESERVATION} />
 				{reservations
 					.filter(

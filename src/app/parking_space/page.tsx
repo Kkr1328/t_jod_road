@@ -9,9 +9,13 @@ import axios from 'axios';
 import ModalCV2X from '@/components/common/ModalCV2X';
 import ModalInputs from '@/components/module/ModalInputs';
 import { InputFieldProp } from '@/types/common/input.model';
+import Navbar from '@/components/Navbar';
+import { PARKING_SERVICE_URL } from '@/services/constant';
+import { useRouter } from 'next/navigation';
+import { getIsUserAdmin } from '@/services/user';
 
 interface ParkingSpaceInput {
-	_id?: string;
+	id?: string;
 	lat: string;
 	lng: string;
 	name: string;
@@ -55,6 +59,8 @@ export default function Home() {
 	const [openRegisterModal, setOpenRegisterModal] = useState<boolean>(false);
 	const [openUpdateModal, setOpenUpdateModal] = useState<boolean>(false);
 
+	const router = useRouter()
+
 	const defaultData = ParkingSpaceTemplate.reduce(
 		(acc, item) => ({
 			...acc,
@@ -92,9 +98,13 @@ export default function Home() {
 		handleCloseUpdateModal();
 	};
 
+	const routeToReservation = (parkingId: string) => {
+		router.push(`/reservation/${parkingId}`)
+	}
+
 	const getParkingSpaces = async () => {
 		await axios
-			.get(`http://localhost:4000/getParkingSpaces`)
+			.get(`${PARKING_SERVICE_URL}/getParkingSpaces`)
 			.then((response) => {
 				setParkingSpaces(response.data);
 			})
@@ -105,7 +115,7 @@ export default function Home() {
 
 	const getParkingSpace = async (id: string) => {
 		await axios
-			.get(`http://localhost:4000/getParkingSpace/${id}`)
+			.get(`${PARKING_SERVICE_URL}/getParkingSpace/${id}`)
 			.then((response) => {
 				setUpdateModalData(response.data);
 			})
@@ -116,7 +126,7 @@ export default function Home() {
 
 	const createParkingSpace = async (newParkingSpace: ParkingSpaceInput) => {
 		await axios
-			.post(`http://localhost:4000/createParkingSpace`, newParkingSpace)
+			.post(`${PARKING_SERVICE_URL}/createParkingSpace`, newParkingSpace)
 			.catch((error) => {
 				console.error('Error deleting parking spaces:', error);
 			});
@@ -126,7 +136,7 @@ export default function Home() {
 	const updateParkingSpace = async (newParkingSpace: ParkingSpaceInput) => {
 		await axios
 			.patch(
-				`http://localhost:4000/updateParkingSpace/${newParkingSpace._id}`,
+				`${PARKING_SERVICE_URL}/updateParkingSpace/${newParkingSpace.id}`,
 				newParkingSpace
 			)
 			.catch((error) => {
@@ -137,7 +147,7 @@ export default function Home() {
 
 	const deleteParkingSpace = async (id: string) => {
 		await axios
-			.delete(`http://localhost:4000/deleteParkingSpace/${id}`)
+			.delete(`${PARKING_SERVICE_URL}/deleteParkingSpace/${id}`)
 			.catch((error) => {
 				console.error('Error deleting parking spaces:', error);
 			});
@@ -145,11 +155,19 @@ export default function Home() {
 	};
 
 	useEffect(() => {
-		getParkingSpaces();
+		getIsUserAdmin()
+			.then((isAdmin) => {
+				if(!isAdmin) { 
+					router.push('/') 
+				} else {
+					getParkingSpaces()
+				}
+			})
 	}, []);
 
 	return (
 		<>
+			<Navbar />
 			<ModalCV2X
 				title="Add a parking space"
 				variant={BUTTON_LABEL.REGISTER}
@@ -176,7 +194,7 @@ export default function Home() {
 					onDataChange={setUpdateModalData}
 				/>
 			</ModalCV2X>
-			<Stack className="gap-16">
+			<Stack className="gap-16 px-32 mt-16">
 				<PageTitle title={NAVBAR_LABEL.PARKING_SPACES} />
 				<div className="w-72">
 					<ButtonCV2X
@@ -201,17 +219,23 @@ export default function Home() {
 							</Stack>
 							<div className="grow" />
 							<ButtonCV2X
+								icon={BUTTON_LABEL.SEARCH}
+								label={"Reservation"}
+								color="accept"
+								onClick={() => routeToReservation(parkingSpace.id)}
+							/>
+							<ButtonCV2X
 								icon={BUTTON_LABEL.UPDATE}
 								label={BUTTON_LABEL.UPDATE}
 								color="primary"
-								onClick={() => handleOpenUpdateModal(parkingSpace._id)}
+								onClick={() => handleOpenUpdateModal(parkingSpace.id)}
 							/>
 							<ButtonCV2X
 								icon={BUTTON_LABEL.DELETE}
 								label={BUTTON_LABEL.DELETE}
 								color="error"
 								variant="outlined"
-								onClick={() => deleteParkingSpace(parkingSpace._id)}
+								onClick={() => deleteParkingSpace(parkingSpace.id)}
 							/>
 						</Stack>
 					</Card>

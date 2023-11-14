@@ -14,6 +14,7 @@ import {
 import { validation } from '@/types/Validation';
 import AuthLayout from '@/components/AuthLayout';
 import PasswordTextField from '@/components/PasswordTextField';
+import { USER_SERVICE_URL } from '@/services/constant';
 
 export default function Home() {
 	const router = useRouter();
@@ -47,7 +48,7 @@ export default function Home() {
 		}
 
 		try {
-			const response = await axios.post('http://localhost:4000/auth/register', {
+			const response = await axios.post(`${USER_SERVICE_URL}/register`, {
 				email,
 				username,
 				password,
