@@ -24,7 +24,6 @@ import { ParkingSpaceList } from '@/proto/parking-space_pb'
 import router from 'next/router';
 import Navbar from '@/components/Navbar';
 import { useRouter } from 'next/navigation';
-import ReviewAlert from '@/components/common/ReviewAlert';
 import { AMQPWebSocketClient } from '@cloudamqp/amqp-client';
 
 const center = {
@@ -39,7 +38,8 @@ export default function DriveIN() {
     const [showReserveModal, setShowReserveModal] = useState<boolean>(false)
     const [resultStatus, setResultStatus] = useState<[String, String]>(["",""])
     const [showResultModal, setShowResultModal] = useState<boolean>(false)
-    const [recommendReview, setRecommendReview] = useState()
+    const [recommendReviewModal, setRecommendReviewModal] = useState<boolean>(false)
+    const [recommendReviewLoc, setRecommendReviewLoc] = useState()
     const nav_router = useRouter()
 
     const expiryTimestamp = new Date()
@@ -49,6 +49,7 @@ export default function DriveIN() {
         minutes,
         isRunning,
         restart,
+        pause
       } = useTimer({ expiryTimestamp, autoStart: false, onExpire: () => console.log(`time out`) });
 
     function getAvailableSpaces() {
@@ -72,11 +73,19 @@ export default function DriveIN() {
 			const amqp = new AMQPWebSocketClient(url, '/', 'guest', 'guest');
 			const conn = await amqp.connect();
 			const ch = await conn.channel();
-			await ch.queueDeclare("params.parking_space_id", {
+            const userInfo = await getProfile()
+			await ch.queueDeclare(userInfo.id, {
 				durable: false,
 			});
-			await ch.basicConsume("params.parking_space_id", {}, () => {
-				// setRecommendReview()
+			await ch.basicConsume(userInfo.id, {}, (e) => {
+                const body = e.bodyToString()
+                console.log(body)
+                if (body === null) { return }
+                const parkingLotId = JSON.parse(body).parkingLotId
+                console.log('oark' + parkingLotId)
+                setRecommendReviewLoc(parkingLotId)
+                pause()
+                setRecommendReviewModal(true)
 			});
 		};
 		fetchData();
@@ -88,7 +97,7 @@ export default function DriveIN() {
             const isAdmin = await getIsUserAdmin()
             if(isAdmin) { nav_router.push('/parking_space') }
             getPenaltyStatus((data) => setPenaltyStatus(data))
-            // fetchRecommendReview()
+            fetchRecommendReview()
 
             getAvailableSpaces()
 
@@ -148,7 +157,6 @@ export default function DriveIN() {
             <Navbar />
             <div className='h-[80dvh] flex flex-col gap-12 text-black px-32 mt-16'>
                 <PageTitle title={NAVBAR_LABEL.CUSTOMERS_RESERVATION} />
-                <ReviewAlert />
                 { isRunning ?
                     <div className='text-center text-h2 text-active_green'>{minutes}m {seconds}s left</div> :
                     <PenaltyBadge props={penaltyStatus} />
@@ -200,6 +208,21 @@ export default function DriveIN() {
                         <h1 className='text-center font-bold'>{resultStatus[0]}</h1>
                         <div className=''>{resultStatus[1]}</div>
                         <ButtonCV2X label='Close' onClick={() => setShowResultModal(false)} />
+                    </Box>
+                </Modal>
+                <Modal
+                    open={recommendReviewModal} // recommendReviewModal
+                    onClose={() => setShowResultModal(false)}
+                >
+                    <Box className='flex flex-col gap-16 justify-center absolute top-1/2 left-1/2 w-[400px] translate-x-[-50%] translate-y-[-50%] border-solid bg-light_background_grey p-48 text-black rounded-lg'>
+                        <h1 className='text-center font-bold'>Thanks for using our services</h1>
+                        <span>Do you want to review parking?</span>
+                        <ButtonCV2X label='Of course!' onClick={() => { 
+                                setRecommendReviewModal(false)
+                                nav_router.push(`/review/${recommendReviewLoc}`)
+                            }}
+                        />
+                        <ButtonCV2X label='No' onClick={() => setRecommendReviewModal(false)} color='secondary' />
                     </Box>
                 </Modal>
             </div>
