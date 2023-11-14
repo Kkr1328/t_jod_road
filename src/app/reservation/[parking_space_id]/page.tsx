@@ -81,12 +81,13 @@ export default function Home({
 					.filter(
 						(reservation) => !reservation.confirmed && reservation.timeLeft > 0
 					)
-					.map((reservation, _index) => (
-						<ReservationCard 
+					.map((reservation, index) => (
+						<ReservationCard
+							key={index}
 							reservation={{
 								id: reservation.id,
 								userId: reservation.userId,
-								lateAt: reservation.lateAt
+								lateAt: reservation.lateAt,
 							}}
 							onClick={() => confirmReservation(reservation.id)}
 						/>
