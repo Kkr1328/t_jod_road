@@ -13,6 +13,7 @@ import Navbar from '@/components/Navbar';
 import { PARKING_SERVICE_URL } from '@/services/constant';
 import { useRouter } from 'next/navigation';
 import { getIsUserAdmin } from '@/services/user';
+import NoData from '@/components/common/NoData';
 
 interface ParkingSpaceInput {
 	id?: string;
@@ -157,8 +158,8 @@ export default function Home() {
 	useEffect(() => {
 		getIsUserAdmin()
 			.then((isAdmin) => {
-				if(!isAdmin) { 
-					router.push('/') 
+				if (!isAdmin) {
+					router.push('/')
 				} else {
 					getParkingSpaces()
 				}
@@ -203,44 +204,78 @@ export default function Home() {
 						onClick={handleOpenRegisterModel}
 					/>
 				</div>
-				{parkingSpaces.map((parkingSpace, index) => (
-					<Card key={index} className="w-full rounded-lg px-32 py-24">
-						<Stack direction="row" className="gap-32 ontent-center">
-							<Stack>
-								<p>{`Parking space name : ${parkingSpace.name}`}</p>
-
-								<p>{`Total parking lots : ${parkingSpace.totalParking}`}</p>
-							</Stack>
-							<Stack>
-								<p>
-									{`Parking space location : ( ${parkingSpace.lat} , ${parkingSpace.lng} )`}
-								</p>
-								<p>{`Available parking lots : ${parkingSpace.available}`}</p>
-							</Stack>
-							<div className="grow" />
-							<ButtonCV2X
-								icon={BUTTON_LABEL.SEARCH}
-								label={"Reservation"}
-								color="accept"
-								onClick={() => routeToReservation(parkingSpace.id)}
-							/>
-							<ButtonCV2X
-								icon={BUTTON_LABEL.UPDATE}
-								label={BUTTON_LABEL.UPDATE}
-								color="primary"
-								onClick={() => handleOpenUpdateModal(parkingSpace.id)}
-							/>
-							<ButtonCV2X
-								icon={BUTTON_LABEL.DELETE}
-								label={BUTTON_LABEL.DELETE}
-								color="error"
-								variant="outlined"
-								onClick={() => deleteParkingSpace(parkingSpace.id)}
-							/>
-						</Stack>
-					</Card>
-				))}
+				{parkingSpaces.length === 0 ?
+					<div className='mt-[168px]'>
+						<NoData size='large' />
+					</div>
+					:
+					parkingSpaces.map((parkingSpace, _index) => (
+						<ParkingSpaceCard
+							id={parkingSpace.id}
+							name={parkingSpace.name}
+							totalParking={parkingSpace.totalParking}
+							lat={parkingSpace.lat}
+							lng={parkingSpace.lng}
+							available={parkingSpace.available}
+							routeToReservation={() => routeToReservation(parkingSpace.id)}
+							handleOpenUpdateModal={() => handleOpenUpdateModal(parkingSpace.id)}
+							deleteParkingSpace={() => deleteParkingSpace(parkingSpace.id)}
+						/>
+					))
+				}
 			</Stack>
 		</>
 	);
+}
+
+interface ParkingSpaceCardProps {
+	id: string
+	name: string
+	totalParking: Number
+	lat: Number
+	lng: Number
+	available: Number
+	routeToReservation: () => void
+	handleOpenUpdateModal: () => void
+	deleteParkingSpace: () => void
+}
+
+function ParkingSpaceCard(props: ParkingSpaceCardProps) {
+	return (
+		<Card key={props.id} className="w-full rounded-lg px-32 py-24">
+			<Stack direction="row" className="gap-32 ontent-center">
+				<Stack>
+					<p>{`Parking space name : ${props.name}`}</p>
+
+					<p>{`Total parking lots : ${props.totalParking}`}</p>
+				</Stack>
+				<Stack>
+					<p>
+						{`Parking space location : (${props.lat}, ${props.lng})`}
+					</p>
+					<p>{`Available parking lots : ${props.available}`}</p>
+				</Stack>
+				<div className="grow" />
+				<ButtonCV2X
+					icon={BUTTON_LABEL.SEARCH}
+					label={"Reservation"}
+					color="accept"
+					onClick={props.routeToReservation}
+				/>
+				<ButtonCV2X
+					icon={BUTTON_LABEL.UPDATE}
+					label={BUTTON_LABEL.UPDATE}
+					color="primary"
+					onClick={props.handleOpenUpdateModal}
+				/>
+				<ButtonCV2X
+					icon={BUTTON_LABEL.DELETE}
+					label={BUTTON_LABEL.DELETE}
+					color="error"
+					variant="outlined"
+					onClick={props.deleteParkingSpace}
+				/>
+			</Stack>
+		</Card>
+	)
 }
