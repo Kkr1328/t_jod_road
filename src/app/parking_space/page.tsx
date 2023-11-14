@@ -9,9 +9,14 @@ import axios from 'axios';
 import ModalCV2X from '@/components/common/ModalCV2X';
 import ModalInputs from '@/components/module/ModalInputs';
 import { InputFieldProp } from '@/types/common/input.model';
+import Navbar from '@/components/Navbar';
+import { PARKING_SERVICE_URL } from '@/services/constant';
+import { useRouter } from 'next/navigation';
+import { getIsUserAdmin } from '@/services/user';
+import NoData from '@/components/common/NoData';
 
 interface ParkingSpaceInput {
-	_id?: string;
+	id?: string;
 	lat: string;
 	lng: string;
 	name: string;
@@ -55,6 +60,8 @@ export default function Home() {
 	const [openRegisterModal, setOpenRegisterModal] = useState<boolean>(false);
 	const [openUpdateModal, setOpenUpdateModal] = useState<boolean>(false);
 
+	const router = useRouter()
+
 	const defaultData = ParkingSpaceTemplate.reduce(
 		(acc, item) => ({
 			...acc,
@@ -92,9 +99,13 @@ export default function Home() {
 		handleCloseUpdateModal();
 	};
 
+	const routeToReservation = (parkingId: string) => {
+		router.push(`/reservation/${parkingId}`)
+	}
+
 	const getParkingSpaces = async () => {
 		await axios
-			.get(`http://localhost:4000/getParkingSpaces`)
+			.get(`${PARKING_SERVICE_URL}/getParkingSpaces`)
 			.then((response) => {
 				setParkingSpaces(response.data);
 			})
@@ -105,7 +116,7 @@ export default function Home() {
 
 	const getParkingSpace = async (id: string) => {
 		await axios
-			.get(`http://localhost:4000/getParkingSpace/${id}`)
+			.get(`${PARKING_SERVICE_URL}/getParkingSpace/${id}`)
 			.then((response) => {
 				setUpdateModalData(response.data);
 			})
@@ -116,7 +127,7 @@ export default function Home() {
 
 	const createParkingSpace = async (newParkingSpace: ParkingSpaceInput) => {
 		await axios
-			.post(`http://localhost:4000/createParkingSpace`, newParkingSpace)
+			.post(`${PARKING_SERVICE_URL}/createParkingSpace`, newParkingSpace)
 			.catch((error) => {
 				console.error('Error deleting parking spaces:', error);
 			});
@@ -126,7 +137,7 @@ export default function Home() {
 	const updateParkingSpace = async (newParkingSpace: ParkingSpaceInput) => {
 		await axios
 			.patch(
-				`http://localhost:4000/updateParkingSpace/${newParkingSpace._id}`,
+				`${PARKING_SERVICE_URL}/updateParkingSpace/${newParkingSpace.id}`,
 				newParkingSpace
 			)
 			.catch((error) => {
@@ -137,7 +148,7 @@ export default function Home() {
 
 	const deleteParkingSpace = async (id: string) => {
 		await axios
-			.delete(`http://localhost:4000/deleteParkingSpace/${id}`)
+			.delete(`${PARKING_SERVICE_URL}/deleteParkingSpace/${id}`)
 			.catch((error) => {
 				console.error('Error deleting parking spaces:', error);
 			});
@@ -145,11 +156,19 @@ export default function Home() {
 	};
 
 	useEffect(() => {
-		getParkingSpaces();
+		getIsUserAdmin()
+			.then((isAdmin) => {
+				if (!isAdmin) {
+					router.push('/')
+				} else {
+					getParkingSpaces()
+				}
+			})
 	}, []);
 
 	return (
 		<>
+			<Navbar />
 			<ModalCV2X
 				title="Add a parking space"
 				variant={BUTTON_LABEL.REGISTER}
@@ -176,7 +195,7 @@ export default function Home() {
 					onDataChange={setUpdateModalData}
 				/>
 			</ModalCV2X>
-			<Stack className="gap-16">
+			<Stack className="gap-16 px-32 mt-16">
 				<PageTitle title={NAVBAR_LABEL.PARKING_SPACES} />
 				<div className="w-72">
 					<ButtonCV2X
@@ -185,38 +204,78 @@ export default function Home() {
 						onClick={handleOpenRegisterModel}
 					/>
 				</div>
-				{parkingSpaces.map((parkingSpace, index) => (
-					<Card key={index} className="w-full rounded-lg px-32 py-24">
-						<Stack direction="row" className="gap-32 ontent-center">
-							<Stack>
-								<p>{`Parking space name : ${parkingSpace.name}`}</p>
-
-								<p>{`Total parking lots : ${parkingSpace.totalParking}`}</p>
-							</Stack>
-							<Stack>
-								<p>
-									{`Parking space location : ( ${parkingSpace.lat} , ${parkingSpace.lng} )`}
-								</p>
-								<p>{`Available parking lots : ${parkingSpace.available}`}</p>
-							</Stack>
-							<div className="grow" />
-							<ButtonCV2X
-								icon={BUTTON_LABEL.UPDATE}
-								label={BUTTON_LABEL.UPDATE}
-								color="primary"
-								onClick={() => handleOpenUpdateModal(parkingSpace._id)}
-							/>
-							<ButtonCV2X
-								icon={BUTTON_LABEL.DELETE}
-								label={BUTTON_LABEL.DELETE}
-								color="error"
-								variant="outlined"
-								onClick={() => deleteParkingSpace(parkingSpace._id)}
-							/>
-						</Stack>
-					</Card>
-				))}
+				{parkingSpaces.length === 0 ?
+					<div className='mt-[168px]'>
+						<NoData size='large' />
+					</div>
+					:
+					parkingSpaces.map((parkingSpace, _index) => (
+						<ParkingSpaceCard
+							id={parkingSpace.id}
+							name={parkingSpace.name}
+							totalParking={parkingSpace.totalParking}
+							lat={parkingSpace.lat}
+							lng={parkingSpace.lng}
+							available={parkingSpace.available}
+							routeToReservation={() => routeToReservation(parkingSpace.id)}
+							handleOpenUpdateModal={() => handleOpenUpdateModal(parkingSpace.id)}
+							deleteParkingSpace={() => deleteParkingSpace(parkingSpace.id)}
+						/>
+					))
+				}
 			</Stack>
 		</>
 	);
+}
+
+interface ParkingSpaceCardProps {
+	id: string
+	name: string
+	totalParking: Number
+	lat: Number
+	lng: Number
+	available: Number
+	routeToReservation: () => void
+	handleOpenUpdateModal: () => void
+	deleteParkingSpace: () => void
+}
+
+function ParkingSpaceCard(props: ParkingSpaceCardProps) {
+	return (
+		<Card key={props.id} className="w-full rounded-lg px-32 py-24">
+			<Stack direction="row" className="gap-32 ontent-center">
+				<Stack>
+					<p>{`Parking space name : ${props.name}`}</p>
+
+					<p>{`Total parking lots : ${props.totalParking}`}</p>
+				</Stack>
+				<Stack>
+					<p>
+						{`Parking space location : (${props.lat}, ${props.lng})`}
+					</p>
+					<p>{`Available parking lots : ${props.available}`}</p>
+				</Stack>
+				<div className="grow" />
+				<ButtonCV2X
+					icon={BUTTON_LABEL.SEARCH}
+					label={"Reservation"}
+					color="accept"
+					onClick={props.routeToReservation}
+				/>
+				<ButtonCV2X
+					icon={BUTTON_LABEL.UPDATE}
+					label={BUTTON_LABEL.UPDATE}
+					color="primary"
+					onClick={props.handleOpenUpdateModal}
+				/>
+				<ButtonCV2X
+					icon={BUTTON_LABEL.DELETE}
+					label={BUTTON_LABEL.DELETE}
+					color="error"
+					variant="outlined"
+					onClick={props.deleteParkingSpace}
+				/>
+			</Stack>
+		</Card>
+	)
 }

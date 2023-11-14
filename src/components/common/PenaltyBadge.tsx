@@ -9,11 +9,11 @@ export default function PenaltyBadge({ props }: Props) {
     if (!props) return <>Loading Penalty...</>;
     if (props.status === 'NORMAL') {
         if (props.leftQuota >= 5) {
-            return <span>Thank You For Always being on Time</span>;
+            return <span className='text-center text-h2'>Thank You For Always being on Time</span>;
         } else {
-            return <span>Left quota before get penalty: {props.leftQuota}</span>;
+            return <span className='text-center text-h2'>Left quota before get penalty: {props.leftQuota}</span>;
         }
     } else {
-        return <span>Before <span className='font-bold'>{unBannedDate.toDateString()}</span>, you must deposit to use system</span>;
+        return <span>Before <span className='font-bold text-center text-h2'>{unBannedDate.toDateString()}</span>, you must deposit to use system</span>;
     }
 }
