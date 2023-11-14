@@ -16,6 +16,7 @@ import {
 import { validation } from '@/types/Validation';
 import Navbar from '@/components/Navbar';
 import PasswordTextField from '@/components/PasswordTextField';
+import { USER_SERVICE_URL } from '@/services/constant';
 
 export default function Home() {
 	const router = useRouter();
@@ -53,7 +54,7 @@ export default function Home() {
 		setIsSubmit(true);
 		if (!ready) return;
 
-		const API_URL = 'http://localhost:4000/users/update_profile';
+		const API_URL = `${USER_SERVICE_URL}/editProfile`;
 
 		const header = {
 			Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -65,7 +66,7 @@ export default function Home() {
 		};
 
 		const config = {
-			method: 'POST',
+			method: 'PATCH',
 			url: API_URL,
 			headers: header,
 			data: data,
@@ -83,7 +84,7 @@ export default function Home() {
 
 	useEffect(() => {
 		async function getProfile() {
-			const API_URL = 'http://localhost:4000/users/profile';
+			const API_URL = `${USER_SERVICE_URL}/getProfile`;
 
 			const header = {
 				Authorization: `Bearer ${localStorage.getItem('token')}`,

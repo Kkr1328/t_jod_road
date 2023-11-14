@@ -11,8 +11,7 @@ export default function LayoutWrapper({
 }) {
 	return (
 		<Box className="w-screen h-screen flex bg-dark_background_grey">
-			<Box className="grow px-32 py-32">
-				<Toolbar />
+			<Box className="grow">
 				{children}
 			</Box>
 		</Box>

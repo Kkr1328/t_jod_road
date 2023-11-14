@@ -13,6 +13,7 @@ import {
 import { validation } from '@/types/Validation';
 import AuthLayout from '@/components/AuthLayout';
 import PasswordTextField from '@/components/PasswordTextField';
+import { USER_SERVICE_URL } from '@/services/constant';
 
 type errorInput = {
 	email: boolean;
@@ -72,7 +73,7 @@ export default function Home() {
 
 		if (!ready) return;
 
-		const API_URL = 'http://localhost:4000/auth/reset_password';
+		const API_URL = `${USER_SERVICE_URL}/resetPassword`;
 
 		const data = {
 			email: email,
