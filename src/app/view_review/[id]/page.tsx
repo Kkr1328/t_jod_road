@@ -9,7 +9,7 @@ import axios from 'axios';
 
 
 export default function Home({params,}: {
-	params: { parking_space_id: string };
+	params: { id: string };
 }) {
 
     const [reviews, setReviews] = useState<any[]>([]);
@@ -17,7 +17,7 @@ export default function Home({params,}: {
     const getReviews = async () => {
         await axios
         .get(
-            `http://localhost:6000/getReviewsByParkingLot/${params.parking_space_id as string}`
+            `http://localhost:6000/getReviewsByParkingLot/${params.id as string}`
         )
         .then((response) => {
             setReviews(
