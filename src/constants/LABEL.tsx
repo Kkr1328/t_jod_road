@@ -13,6 +13,7 @@ export enum NAVBAR_LABEL {
 	RSUS = 'RSUs',
 	EXPAND = 'Expand',
 	COLLAPSE = 'Collapse',
+	REVIEW = 'Review',
 }
 
 export enum INPUT_LABEL {
