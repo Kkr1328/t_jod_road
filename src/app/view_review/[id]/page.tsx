@@ -19,7 +19,7 @@ export default function Home({params,}: {
     const getReviews = async () => {
         await axios
         .get(
-            `${REVIEW_SERVICE_URL}/getReviewsByParkingLot/${params.id as string}`
+            `http://localhost:9001/getReviewsByParkingLot/${params.id as string}`
         )
         .then((response) => {
             setReviews(

@@ -7,17 +7,20 @@ import { useContext, useEffect, useState } from 'react';
 import ButtonCV2X from '@/components/common/ButtonCV2X';
 import React from 'react';
 import axios from 'axios';
-import { AuthContext } from '@/context/auth-context';
+// import { AuthContext } from '@/context/auth-context';
 import { REVIEW_SERVICE_URL, PARKING_SERVICE_URL } from '@/services/constant';
+import { useRouter } from 'next/navigation';
 
 export default function Home({params,}: {
 	params: { id: string };
 }) {
 
+  const router = useRouter()
+
     const [message, setMessage] = useState<string>('');
     const [isSubmit, setIsSubmit] = useState<boolean>(false);
     const [parkingSpaceName, setParkingSpaceName] = useState<string>('');
-    const authContext = useContext(AuthContext);
+    // const authContext = useContext(AuthContext);
 
     const handleSubmit = async () => {
       setIsSubmit(true);
@@ -27,11 +30,13 @@ export default function Home({params,}: {
       }
   
       try {
-        const response = await axios.post(`${REVIEW_SERVICE_URL}/createReview/${params.id as string}`, {
-          message,
+        const req = await axios.post(`http://localhost:9001/createReview/${params.id as string}`, {
+          message : message,
         },{headers:{
-          Authorization: authContext.authState.token
+          Authorization: `Bearer ${localStorage.getItem('token')}`
         }});
+        console.log(req)
+        router.push('/')
       } catch (error) {
         console.error('Submit failed:', error);
       }
@@ -82,6 +87,7 @@ export default function Home({params,}: {
                 label='Cancel'
                 color="error"
                 variant="outlined"
+                onClick={()=> router.push('/')}
               />
             </Stack>
             

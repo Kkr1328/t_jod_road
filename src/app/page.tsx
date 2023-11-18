@@ -192,6 +192,7 @@ export default function DriveIN() {
                                 <>
                                     <h1 className='text-center'>Confirm with <span className='font-bold'>{selectedPlace.name}</span>?</h1>
                                     <ButtonCV2X label='Reserve' onClick={() => reservePark(selectedPlace.id)} />
+                                    <ButtonCV2X label='View Review' onClick={() => nav_router.push(`/view_review/${selectedPlace.id}`)} />
                                     <ButtonCV2X label='Close' onClick={() => setShowReserveModal(false)} color='secondary' />
                                 </> :
                                 <h1 className='text-center'>Location: <span className='font-bold'>{selectedPlace.name}</span></h1>
@@ -219,7 +220,7 @@ export default function DriveIN() {
                         <span>Do you want to review parking?</span>
                         <ButtonCV2X label='Of course!' onClick={() => { 
                                 setRecommendReviewModal(false)
-                                nav_router.push(`/review/${recommendReviewLoc}`)
+                                nav_router.push(`/write_review/${recommendReviewLoc}`)
                             }}
                         />
                         <ButtonCV2X label='No' onClick={() => setRecommendReviewModal(false)} color='secondary' />
